@@ -29,6 +29,7 @@ React SPA (:5173) ──fetch (Bearer JWT)──► Go/Fiber API (:3000) ──p
 | `multicatalogo-backend/` | API REST transaccional Go + Fiber v2 + pgx + Redis. |
 | `docker/` | Configuración del API Gateway & Reverse Proxy Nginx perimetral con Rate Limiting. |
 | `docker-compose.prod.yml` | Orquestación de producción Zero-Trust (Gateway, Frontend, Backend, Postgres 5434, Redis 6379). |
+| `menu.bat` / `menu.sh` | **Centro de Control Interactivo**: Menú para despliegue local, híbrido, Docker producción, diagnósticos y tests. |
 | `scripts/` | Automatización de despliegue en producción (`prod-deploy.ps1` y `prod-deploy.sh`). |
 
 ## Frontend (`multicatalogo-frontend/src/`)
