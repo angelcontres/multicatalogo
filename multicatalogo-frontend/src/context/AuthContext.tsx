@@ -1,45 +1,49 @@
 // src/context/AuthContext.tsx
-import { createContext, useContext, useState, type ReactNode } from 'react';
-
-interface AuthContextType {
-  isAuthenticated: boolean;
-  userEmail: string | null; // <-- 1. Nuevo estado para el correo
-  login: (email: string) => void; // <-- 2. La función ahora recibe el correo
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth debe ser usado dentro de un AuthProvider");
-  }
-  return context;
-};
+import { useState, useEffect, type ReactNode } from 'react';
+import { AuthContext, type Usuario } from './auth';
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null); // <-- 3. Estado local
+const AUTH_STORAGE_KEY = 'multicatalogo_sesion';
 
-  // 4. Actualizamos las funciones
-  const login = (email: string) => {
-    setIsAuthenticated(true);
-    setUserEmail(email); // Guardamos el correo
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [user, setUser] = useState<Usuario | null>(() => {
+    try {
+      const saved = localStorage.getItem(AUTH_STORAGE_KEY);
+      return saved ? (JSON.parse(saved) as Usuario) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const isAuthenticated = !!user;
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+      if (user.token) {
+        localStorage.setItem('multicatalogo_jwt', user.token);
+      }
+    } else {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem('multicatalogo_jwt');
+    }
+  }, [user]);
+
+  const login = (usuario: Usuario) => {
+    setUser(usuario);
   };
-  
+
   const logout = () => {
-    setIsAuthenticated(false);
-    setUserEmail(null); // Limpiamos el correo al salir
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userEmail, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+

@@ -1,0 +1,39 @@
+# docker-compose.yml
+# MultiCatálogo: PostgreSQL 16 (:5434) + Redis Alpine (:6379)
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: multicatalogo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: multicatalogo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d multicatalogo"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: multicatalogo-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
+  redisdata:

@@ -1,30 +1,53 @@
-// Declaramos el paquete controllers para agrupar las funciones que manejan la lógica de negocio de las rutas.
+// controllers/authController.go
 package controllers
 
 import (
-	// Importamos el framework Fiber para tener acceso al contexto (c *fiber.Ctx) de la petición HTTP.
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
-	// Importamos nuestro paquete de modelos para poder usar la estructura LoginRequest.
 	"multicatalogo-backend/models"
 )
 
-// Login es la función controladora que se ejecutará cuando el cliente envíe sus credenciales.
+// Login es la función controladora que valida credenciales y entrega el rol del usuario.
 func Login(c *fiber.Ctx) error {
-	// Creamos una variable 'req' del tipo LoginRequest (ubicada en nuestro paquete models) para almacenar los datos.
 	var req models.LoginRequest
-	
-	// Intentamos parsear (transformar) el cuerpo JSON entrante y guardarlo en la variable 'req'.
+
 	if err := c.BodyParser(&req); err != nil {
-		// Si ocurre un error al parsear (ej. JSON mal formado), retornamos un estado HTTP 400 (Bad Request).
-		return c.Status(400).JSON(fiber.Map{"error": "Cuerpo de petición inválido"})
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIError{
+			Status:  fiber.StatusBadRequest,
+			Message: "Cuerpo de petición inválido",
+		})
 	}
 
-	// Evaluamos si el email y la contraseña coinciden con las credenciales predefinidas.
-	if req.Email == "admin@upse.edu.ec" && req.Password == "123456" {
-		// Si coinciden, retornamos un estado HTTP 200 (por defecto) enviando un JSON con un token ficticio y el correo.
-		return c.JSON(fiber.Map{"token": "fake-jwt-token-123", "email": req.Email})
+	// Validación de campos vacíos (Fase 1 DRS)
+	email := strings.TrimSpace(req.Email)
+	password := strings.TrimSpace(req.Password)
+
+	if email == "" || password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIError{
+			Status:  fiber.StatusBadRequest,
+			Message: "El correo electrónico y la contraseña son obligatorios",
+		})
 	}
-	
-	// Si las credenciales son incorrectas, retornamos un estado HTTP 401 (No autorizado) con un mensaje de error.
-	return c.Status(401).JSON(fiber.Map{"error": "Credenciales incorrectas"})
+
+	// Verificación de credenciales con soporte de roles (admin y cliente)
+	switch {
+	case email == "admin@upse.edu.ec" && password == "123456":
+		return c.JSON(fiber.Map{
+			"token": "fake-jwt-token-admin-123",
+			"email": email,
+			"rol":   "admin",
+		})
+	case email == "cliente@upse.edu.ec" && password == "123456":
+		return c.JSON(fiber.Map{
+			"token": "fake-jwt-token-cliente-456",
+			"email": email,
+			"rol":   "cliente",
+		})
+	default:
+		return c.Status(fiber.StatusUnauthorized).JSON(models.APIError{
+			Status:  fiber.StatusUnauthorized,
+			Message: "Credenciales incorrectas",
+		})
+	}
 }
