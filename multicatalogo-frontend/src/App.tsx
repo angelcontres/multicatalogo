@@ -20,6 +20,7 @@ import { InstallPwaBanner } from './components/InstallPwaBanner';
 import { OfflineBanner } from './components/OfflineBanner';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import { useAuth } from './context/auth';
 
 // Guarda para rutas privadas que requieren autenticación
@@ -62,41 +63,43 @@ function App() {
   return (
     <AuthProvider>
       <CartBoundary>
-        <BrowserRouter>
-          <OfflineBanner />
-          <InstallPwaBanner />
-          <Routes>
-            {/* Rutas públicas */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Register />} />
+        <ToastProvider>
+          <BrowserRouter>
+            <OfflineBanner />
+            <InstallPwaBanner />
+            <Routes>
+              {/* Rutas públicas */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/registro" element={<Register />} />
 
-            {/* Rutas protegidas */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Layout />}>
-                {/* Exclusivo para Administrador */}
-                <Route element={<AdminRoute />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="admin/productos" element={<AdminProductos />} />
-                  <Route path="admin/pedidos" element={<AdminPedidos />} />
-                  <Route path="admin/liquidaciones" element={<AdminLiquidaciones />} />
+              {/* Rutas protegidas */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<Layout />}>
+                  {/* Exclusivo para Administrador */}
+                  <Route element={<AdminRoute />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="admin/productos" element={<AdminProductos />} />
+                    <Route path="admin/pedidos" element={<AdminPedidos />} />
+                    <Route path="admin/liquidaciones" element={<AdminLiquidaciones />} />
+                  </Route>
+
+                  {/* Ambos roles (Admin y Cliente) */}
+                  <Route path="tienda" element={<Storefront />} />
+                  <Route path="catalogo" element={<Catalogo />} />
+                  <Route path="producto/:id" element={<DetalleProducto />} />
+                  <Route path="carrito" element={<Carrito />} />
+                  <Route path="checkout" element={<Checkout />} />
+                  <Route path="confirmacion" element={<Confirmacion />} />
+                  <Route path="mis-pedidos" element={<MisPedidos />} />
+                  <Route path="mi-red" element={<MiRed />} />
                 </Route>
-
-                {/* Ambos roles (Admin y Cliente) */}
-                <Route path="tienda" element={<Storefront />} />
-                <Route path="catalogo" element={<Catalogo />} />
-                <Route path="producto/:id" element={<DetalleProducto />} />
-                <Route path="carrito" element={<Carrito />} />
-                <Route path="checkout" element={<Checkout />} />
-                <Route path="confirmacion" element={<Confirmacion />} />
-                <Route path="mis-pedidos" element={<MisPedidos />} />
-                <Route path="mi-red" element={<MiRed />} />
               </Route>
-            </Route>
 
-            {/* Ruta comodín */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
+              {/* Ruta comodín */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
       </CartBoundary>
     </AuthProvider>
   );

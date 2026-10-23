@@ -6,13 +6,11 @@
 // - Explicación del modelo multinivel
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/auth';
 import { getProductos } from '../services/productosService';
 import type { Producto } from '../data/productos';
 import { categorias } from '../data/productos';
 
 const Storefront = () => {
-  const { user } = useAuth();
   const [destacados, setDestacados] = useState<Producto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -50,18 +48,17 @@ const Storefront = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/catalogo"
-              className="bg-white text-indigo-700 font-bold px-8 py-4 rounded-lg hover:bg-indigo-50 transition shadow-lg text-center"
+              className="bg-white text-indigo-700 font-bold px-8 py-4 rounded-xl hover:bg-indigo-50 transition shadow-lg text-center"
             >
               Ver Catálogo Completo
             </Link>
-            {user?.rol === "admin" && (
-              <Link
-                to="/mi-red"
-                className="border-2 border-white/60 text-white font-bold px-8 py-4 rounded-lg hover:bg-white/10 transition text-center"
-              >
-                Conocer el Plan Multinivel
-              </Link>
-            )}
+            <Link
+              to="/mi-red"
+              className="border-2 border-white/60 text-white font-bold px-8 py-4 rounded-xl hover:bg-white/10 transition text-center flex items-center justify-center gap-2"
+            >
+              <span>🌳</span>
+              <span>Mi Red & Plan Multinivel</span>
+            </Link>
           </div>
         </div>
       </section>

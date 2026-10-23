@@ -1,10 +1,9 @@
 // src/components/MiRed.tsx
-// Red multinivel visual (Tema 5):
-// - Resumen: referidos activos, ventas de la red, comisiones del mes y nivel alcanzado
-// - Árbol jerárquico recursivo de referidos con comisión calculada por nivel
+// Red multinivel visual interactiva con jerarquía expandible y ledger auditable
 import { useEffect, useState } from 'react';
 import { redInicial, contarRed, sumarVentasRed, sumarComisiones, nivelAlcanzado, comisionDeReferido, TASA_COMISION, type Referido } from '../data/red';
 import { getRed } from '../services/redService';
+import { useToast } from '../context/toast';
 import { API_BASE_URL } from '../services/http';
 
 interface ComisionLedger {
@@ -23,35 +22,55 @@ const NIVEL_ESTILO: Record<number, { badge: string; border: string; tasa: string
 };
 
 const NodoReferido = ({ nodo }: { nodo: Referido }) => {
+  const [expandido, setExpandido] = useState<boolean>(true);
   const estilo = NIVEL_ESTILO[nodo.nivel] ?? NIVEL_ESTILO[1];
   const comision = comisionDeReferido(nodo);
+  const tieneHijos = !!(nodo.hijos && nodo.hijos.length > 0);
 
   return (
     <li>
-      <div className={`bg-white rounded-lg border ${estilo.border} shadow-sm p-4 flex flex-wrap items-center justify-between gap-3`}>
+      <div className={`bg-white rounded-xl border ${estilo.border} shadow-xs p-4 flex flex-wrap items-center justify-between gap-3 hover:shadow-md transition`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600">
+          <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-700 shrink-0">
             {nodo.nombre.charAt(0)}
           </div>
           <div>
-            <p className="font-semibold text-slate-800">{nodo.nombre}</p>
-            <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-full ${estilo.badge}`}>
-              Nivel {nodo.nivel} · {estilo.tasa} comisión
-            </span>
+            <div className="flex items-center gap-2">
+              <p className="font-bold text-slate-800">{nodo.nombre}</p>
+              {nodo.codigo && (
+                <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">
+                  {nodo.codigo}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <span className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded-full ${estilo.badge}`}>
+                Nivel {nodo.nivel} · {estilo.tasa} comisión
+              </span>
+              {tieneHijos && (
+                <button
+                  type="button"
+                  onClick={() => setExpandido(!expandido)}
+                  className="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer underline"
+                >
+                  {expandido ? `Ocultar subred (${nodo.hijos?.length})` : `Ver subred (${nodo.hijos?.length})`}
+                </button>
+              )}
+            </div>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-sm text-slate-500">Ventas</p>
-          <p className="font-bold text-slate-800">${nodo.ventas.toLocaleString()}</p>
-          <p className="text-xs text-indigo-600 font-semibold mt-1">
+          <p className="text-xs text-slate-400 font-medium">Ventas de red</p>
+          <p className="font-extrabold text-slate-800">${nodo.ventas.toLocaleString()}</p>
+          <p className="text-xs text-emerald-600 font-bold mt-0.5">
             +${comision.toFixed(2)} para ti
           </p>
         </div>
       </div>
 
-      {nodo.hijos && nodo.hijos.length > 0 && (
-        <ul className="mt-3 ml-6 space-y-3 border-l-2 border-slate-200 pl-4">
-          {nodo.hijos.map((hijo) => (
+      {tieneHijos && expandido && (
+        <ul className="mt-3 ml-4 sm:ml-6 space-y-3 border-l-2 border-indigo-100 pl-3 sm:pl-4">
+          {nodo.hijos!.map((hijo) => (
             <NodoReferido key={hijo.id} nodo={hijo} />
           ))}
         </ul>
@@ -61,6 +80,7 @@ const NodoReferido = ({ nodo }: { nodo: Referido }) => {
 };
 
 const MiRed = () => {
+  const { showToast } = useToast();
   const [red, setRed] = useState<Referido>(redInicial);
   const [comisionesLedger, setComisionesLedger] = useState<ComisionLedger[]>([]);
   const [copiado, setCopiado] = useState<boolean>(false);
@@ -129,6 +149,11 @@ const MiRed = () => {
     const enlace = `${window.location.origin}/registro?ref=${red.codigo || "TU"}`;
     navigator.clipboard.writeText(enlace);
     setCopiado(true);
+    showToast({
+      title: "¡Enlace Copiado!",
+      message: `Tu enlace personal con código ${red.codigo || "TU"} está en el portapapeles.`,
+      type: "success",
+    });
     setTimeout(() => setCopiado(false), 2500);
   };
 
@@ -209,7 +234,12 @@ const MiRed = () => {
 
       {/* ===== ÁRBOL DE REFERIDOS ===== */}
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-        <h2 className="text-lg font-bold text-slate-800 mb-4">Jerarquía de tu Red</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-slate-800">Jerarquía de tu Red</h2>
+          <span className="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-md border border-indigo-100">
+            Código activo: {red.codigo || "TU"}
+          </span>
+        </div>
 
         {/* Raíz: el usuario */}
         <div className="bg-slate-900 text-white rounded-lg p-4 mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -228,9 +258,15 @@ const MiRed = () => {
         </div>
 
         <ul className="space-y-3">
-          {red.hijos?.map((hijo) => (
-            <NodoReferido key={hijo.id} nodo={hijo} />
-          ))}
+          {red.hijos && red.hijos.length > 0 ? (
+            red.hijos.map((hijo) => (
+              <NodoReferido key={hijo.id} nodo={hijo} />
+            ))
+          ) : (
+            <li className="p-6 text-center text-slate-400 text-xs bg-slate-50 rounded-lg border border-dashed border-slate-200">
+              Aún no tienes distribuidores patrocinados directamente. ¡Comparte tu enlace de afiliación para empezar a armar tu red!
+            </li>
+          )}
         </ul>
       </div>
 

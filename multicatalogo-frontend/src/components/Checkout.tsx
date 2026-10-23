@@ -49,6 +49,27 @@ const Checkout = () => {
     setDatos((prev) => ({ ...prev, [campo]: valor }));
   };
 
+  const autocompletarDatosPrueba = () => {
+    setDatos({
+      nombre: user?.email.includes("ana")
+        ? "Ana García"
+        : user?.email.includes("carlos")
+        ? "Carlos Ruiz"
+        : user?.email.includes("marta")
+        ? "Marta Sánchez"
+        : user?.email.includes("valeria")
+        ? "Valeria Castro"
+        : user?.email.includes("cliente")
+        ? "Luis Poveda"
+        : "Administrador General",
+      email: user?.email || "cliente@upse.edu.ec",
+      direccion: "Av. Universitaria #405 y Malecón",
+      ciudad: "La Libertad",
+      telefono: "0991234567",
+      metodoPago: METODOS_PAGO[0],
+    });
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setProcesando(true);
@@ -142,7 +163,16 @@ const Checkout = () => {
         {/* ===== FORMULARIO DE ENVÍO ===== */}
         <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-5">
           <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-800 mb-4">Datos de Envío</h2>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <h2 className="text-lg font-bold text-slate-800">Datos de Envío</h2>
+              <button
+                type="button"
+                onClick={autocompletarDatosPrueba}
+                className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold px-3 py-1.5 rounded-lg border border-indigo-200 transition cursor-pointer flex items-center gap-1 shadow-2xs"
+              >
+                <span>⚡</span> Autocompletar datos de prueba
+              </button>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

@@ -8,11 +8,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getProductoById } from '../services/productosService';
 import type { Producto } from '../data/productos';
 import { useCart } from '../context/cart';
+import { useToast } from '../context/toast';
 
 const DetalleProducto = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { showToast } = useToast();
 
   const [producto, setProducto] = useState<Producto | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -65,6 +67,13 @@ const DetalleProducto = () => {
   const handleAddToCart = () => {
     addToCart(producto);
     setAgregado(true);
+    showToast({
+      title: "¡Producto Agregado!",
+      message: `${producto.nombre} añadido al carrito`,
+      type: "success",
+      actionText: "Ver Carrito",
+      onAction: () => navigate("/carrito"),
+    });
     setTimeout(() => setAgregado(false), 1500);
   };
 
