@@ -4,9 +4,11 @@ package controllers
 import (
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"multicatalogo-backend/models"
+	"multicatalogo-backend/repository"
 )
 
 // Catálogo enriquecido con soporte de stock y persistencia en memoria
@@ -128,11 +130,30 @@ var (
 	}
 )
 
-// GetProductos entrega la lista completa de artículos activos.
+// GetProductos entrega la lista completa de artículos activos con soporte Cache-Aside (TTL 5m).
 func GetProductos(c *fiber.Ctx) error {
-	catalogoMutex.RLock()
-	defer catalogoMutex.RUnlock()
-	return c.JSON(catalogo)
+	const cacheKey = "productos:all"
+
+	// 1. Intentar lectura desde Redis (Cache Hit)
+	var cached []models.Producto
+	if repository.GetCache(c.Context(), cacheKey, &cached) {
+		c.Set("X-Cache", "HIT")
+		return c.JSON(cached)
+	}
+
+	// 2. Cache Miss: consultar repositorio (PostgreSQL o fallback memoria)
+	prods, err := repository.ObtenerProductos(c.Context())
+	if err != nil || len(prods) == 0 {
+		catalogoMutex.RLock()
+		prods = catalogo
+		catalogoMutex.RUnlock()
+	}
+
+	// 3. Almacenar en Redis con TTL de 5 minutos
+	_ = repository.SetCache(c.Context(), cacheKey, prods, 5*time.Minute)
+
+	c.Set("X-Cache", "MISS")
+	return c.JSON(prods)
 }
 
 // GetProductoPorID busca un artículo específico por su identificador numérico.
@@ -144,6 +165,12 @@ func GetProductoPorID(c *fiber.Ctx) error {
 			Status:  fiber.StatusBadRequest,
 			Message: "El ID del producto debe ser numérico",
 		})
+	}
+
+	// Consultar repositorio
+	prod, err := repository.ObtenerProductoPorID(c.Context(), id)
+	if err == nil && prod != nil {
+		return c.JSON(prod)
 	}
 
 	catalogoMutex.RLock()
@@ -222,6 +249,7 @@ func CrearProducto(c *fiber.Ctx) error {
 		nuevo.Img = "https://picsum.photos/seed/prod" + strconv.Itoa(nuevo.ID) + "/600"
 	}
 	catalogo = append(catalogo, nuevo)
+	repository.InvalidateCache(c.Context(), "productos:all")
 
 	return c.Status(fiber.StatusCreated).JSON(nuevo)
 }
@@ -264,6 +292,7 @@ func ActualizarProducto(c *fiber.Ctx) error {
 			if update.Categoria != "" {
 				catalogo[i].Categoria = update.Categoria
 			}
+			repository.InvalidateCache(c.Context(), "productos:all")
 			return c.JSON(catalogo[i])
 		}
 	}
@@ -290,6 +319,7 @@ func EliminarProducto(c *fiber.Ctx) error {
 	for i := range catalogo {
 		if catalogo[i].ID == id {
 			catalogo[i].Activo = false
+			repository.InvalidateCache(c.Context(), "productos:all")
 			return c.JSON(fiber.Map{
 				"message": "Producto desactivado exitosamente (borrado lógico)",
 				"id":      id,

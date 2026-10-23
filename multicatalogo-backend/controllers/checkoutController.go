@@ -2,12 +2,14 @@
 package controllers
 
 import (
+	"context"
 	"math/rand"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"multicatalogo-backend/config"
 	"multicatalogo-backend/models"
+	"multicatalogo-backend/repository"
 )
 
 // Checkout procesa la compra transaccional de productos con descuento de inventario
@@ -61,6 +63,11 @@ func Checkout(c *fiber.Ctx) error {
 
 	pedidoID := 1000 + rand.Intn(9000)
 
+	// Persistencia en PostgreSQL si el pool está activo (SELECT FOR UPDATE)
+	if txID, err := repository.CrearPedidoTransaccional(c.Context(), req, totalCalculado); err == nil && txID > 0 {
+		pedidoID = txID
+	}
+
 	// Persistencia del pedido en memoria
 	RegistrarPedidoEnMemoria(models.Pedido{
 		ID:           pedidoID,
@@ -73,7 +80,10 @@ func Checkout(c *fiber.Ctx) error {
 	// Registro auditable en el ledger de comisiones
 	RegistrarComisionesPedido(pedidoID, totalCalculado)
 
-	// Concurrencia y Misión Crítica: Goroutine asíncrona para actualizar comisiones de la red
+	// Invalidar caché de productos en Redis (por decremento de stock)
+	repository.InvalidateCache(context.Background(), "productos:all")
+
+	// Concurrencia y Misión Crítica: Goroutine asíncrona para actualizar comisiones de la red e invalidar caché
 	go func(total float64) {
 		time.Sleep(50 * time.Millisecond) // Simula persistencia desacoplada
 		ActualizarVentasRed(total)

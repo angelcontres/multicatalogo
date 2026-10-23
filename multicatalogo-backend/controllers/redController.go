@@ -2,10 +2,15 @@
 package controllers
 
 import (
+	"context"
+	"fmt"
 	"sync"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"multicatalogo-backend/config"
 	"multicatalogo-backend/models"
+	"multicatalogo-backend/repository"
 )
 
 var (
@@ -76,16 +81,44 @@ var (
 	}
 )
 
-// GetRed entrega el árbol jerárquico de referidos.
+// GetRed entrega el árbol jerárquico de referidos aplicando Cache-Aside con Redis (TTL 10m).
 func GetRed(c *fiber.Ctx) error {
-	redMutex.RLock()
-	defer redMutex.RUnlock()
-	return c.JSON(redArbol)
+	userEmail := "global"
+	if claims, ok := c.Locals("usuario").(*config.CustomClaims); ok && claims != nil {
+		userEmail = claims.Email
+	}
+
+	cacheKey := fmt.Sprintf("red:tree:%s", userEmail)
+
+	// 1. Intentar lectura desde Redis (Cache Hit)
+	var cachedTree models.Referido
+	if repository.GetCache(c.Context(), cacheKey, &cachedTree) {
+		c.Set("X-Cache", "HIT")
+		return c.JSON(cachedTree)
+	}
+
+	// 2. Cache Miss: consultar repositorio (PostgreSQL con fallback a memoria)
+	tree, err := repository.ObtenerRed(c.Context(), userEmail)
+	if err != nil || tree == nil {
+		redMutex.RLock()
+		fallbackTree := redArbol
+		redMutex.RUnlock()
+		tree = &fallbackTree
+	}
+
+	// 3. Almacenar en Redis con TTL de 10 minutos
+	_ = repository.SetCache(c.Context(), cacheKey, tree, 10*time.Minute)
+
+	c.Set("X-Cache", "MISS")
+	return c.JSON(tree)
 }
 
-// ActualizarVentasRed agrega ventas al árbol (ejecutado por goroutines post-checkout)
+// ActualizarVentasRed agrega ventas al árbol e invalida la caché en Redis.
 func ActualizarVentasRed(total float64) {
 	redMutex.Lock()
-	defer redMutex.Unlock()
 	redArbol.Ventas += total
+	redMutex.Unlock()
+
+	// Invalidación reactiva de la caché de árboles en Redis
+	repository.InvalidatePattern(context.Background(), "red:tree:*")
 }
