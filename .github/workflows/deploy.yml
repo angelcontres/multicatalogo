@@ -1,0 +1,112 @@
+# ==============================================================================
+# MULTICATÁLOGO - WORKFLOW DE DESPLIEGUE CONTINUO (CD) EN SERVIDOR CASERO
+# ==============================================================================
+# Runner: Runner propio 'self-hosted' (Nombre: anonymous / Linux x64)
+# Disparadores:
+#   - Push a la rama main
+#   - workflow_dispatch (ejecución manual desde la pestaña Actions en GitHub)
+# ==============================================================================
+
+name: CD - Despliegue en Servidor Casero (anonymous)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-anonymous
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Despliegue en Servidor anonymous (Docker Compose)
+    runs-on: self-hosted
+    timeout-minutes: 25
+
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v4
+
+      - name: Asegurar permisos de scripts
+        run: |
+          chmod +x scripts/*.sh menu.sh 2>/dev/null || true
+
+      - name: Configurar variables de entorno (.env)
+        run: |
+          if [ ! -f .env ]; then
+            echo "[INFO] Archivo .env no encontrado. Generando a partir de .env.production.example..."
+            cp .env.production.example .env
+          fi
+          
+          # Asegurar que GATEWAY_PORT esté configurado
+          if ! grep -q "^GATEWAY_PORT=" .env; then
+            echo "GATEWAY_PORT=80" >> .env
+          fi
+          echo "[OK] Variables de entorno configuradas."
+
+      - name: Desplegar contenedores con Docker Compose
+        run: |
+          echo "=========================================================="
+          echo " Desplegando MultiCatálogo en Servidor Casero: anonymous"
+          echo "=========================================================="
+          
+          PROFILE_FLAG=""
+          if grep -q "CLOUDFLARE_TUNNEL_TOKEN=" .env 2>/dev/null && [ -n "$(grep CLOUDFLARE_TUNNEL_TOKEN .env | cut -d= -f2-)" ]; then
+            echo "[INFO] Cloudflare Tunnel detectado en .env. Activando perfil tunnel..."
+            PROFILE_FLAG="--profile tunnel"
+          fi
+
+          echo "[INFO] Deteniendo servicios previos de forma limpia..."
+          docker compose -f docker-compose.prod.yml down --remove-orphans || true
+
+          echo "[INFO] Construyendo imágenes y levantando servicios de producción..."
+          docker compose -f docker-compose.prod.yml $PROFILE_FLAG up --build -d --remove-orphans
+
+      - name: Esperar disponibilidad de servicios (Healthchecks)
+        run: |
+          echo "[INFO] Esperando inicialización de contenedores..."
+          RETRIES=20
+          ALL_READY=false
+          while [ $RETRIES -gt 0 ]; do
+            UNHEALTHY=$(docker compose -f docker-compose.prod.yml ps --format '{{.Health}}' | grep -E 'starting|unhealthy' || true)
+            if [ -z "$UNHEALTHY" ]; then
+              ALL_READY=true
+              break
+            fi
+            sleep 3
+            RETRIES=$((RETRIES-1))
+            echo "Esperando que los servicios alcancen estado saludable... (intentos restantes: $RETRIES)"
+          done
+
+          if [ "$ALL_READY" = false ]; then
+            echo "[WARN] Algunos servicios tardan en responder. Continuando con verificación de estado..."
+          else
+            echo "[OK] Todos los servicios se encuentran saludables."
+          fi
+
+      - name: Verificar estado de los contenedores
+        run: |
+          echo "=========================================================="
+          echo " SERVICIOS ACTIVOS EN EL SERVIDOR anonymous"
+          echo "=========================================================="
+          docker compose -f docker-compose.prod.yml ps
+          echo "=========================================================="
+
+      - name: Diagnóstico en caso de error
+        if: failure()
+        run: |
+          echo "=========================================================="
+          echo " [ERROR] DIAGNÓSTICO DE CONTENEDORES"
+          echo "=========================================================="
+          docker compose -f docker-compose.prod.yml ps -a || true
+          echo "--- Logs del Gateway Nginx ---"
+          docker logs multicatalogo-gateway-prod --tail 50 || true
+          echo "--- Logs del Backend Go ---"
+          docker logs multicatalogo-backend-prod --tail 50 || true
+          echo "--- Logs del Frontend Nginx ---"
+          docker logs multicatalogo-frontend-prod --tail 50 || true
+          echo "--- Logs de PostgreSQL ---"
+          docker logs multicatalogo-postgres-prod --tail 50 || true
+          echo "--- Logs de Redis ---"
+          docker logs multicatalogo-redis-prod --tail 50 || true

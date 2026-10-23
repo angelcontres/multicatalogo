@@ -212,6 +212,21 @@ services:
           cpus: "0.10"
           memory: 32M
 
+  # ----------------------------------------------------------------------------
+  # 6. CLOUDFLARE TUNNEL (OPCIONAL: SERVIDOR CASERO / ACCESO PÚBLICO SEGURO)
+  # ----------------------------------------------------------------------------
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: multicatalogo-tunnel-prod
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: "${CLOUDFLARE_TUNNEL_TOKEN:-}"
+    networks:
+      - public-net
+    profiles:
+      - tunnel
+
 # ------------------------------------------------------------------------------
 # VOLÚMENES PERSISTENTES
 # ------------------------------------------------------------------------------

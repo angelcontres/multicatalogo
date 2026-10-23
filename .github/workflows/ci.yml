@@ -1,0 +1,97 @@
+# ==============================================================================
+# MULTICATÁLOGO - INTEGRACIÓN CONTINUA (CI)
+# ==============================================================================
+# Ejecuta validaciones de código estático, tests y empaquetado:
+#   - Frontend: ESLint + TypeScript + Vite build
+#   - Backend: Go compilation check
+#   - AI Harness: Verificación de lógica MLM, contratos API y simulación ACID
+# ==============================================================================
+
+name: CI - Integración Continua
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ----------------------------------------------------------------------------
+  # 1. VERIFICACIÓN DEL FRONTEND (REACT 19 + TAILWIND V4 + VITE)
+  # ----------------------------------------------------------------------------
+  frontend:
+    name: Frontend (ESLint + TypeScript + Build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: multicatalogo-frontend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm --prefix multicatalogo-frontend ci
+
+      - name: Ejecutar ESLint (0 errores, 0 advertencias)
+        run: npm --prefix multicatalogo-frontend run lint
+
+      - name: Compilar bundle de producción
+        run: npm --prefix multicatalogo-frontend run build
+
+  # ----------------------------------------------------------------------------
+  # 2. VERIFICACIÓN DE LÓGICA DE NEGOCIO Y CONTRATOS (AI HARNESS)
+  # ----------------------------------------------------------------------------
+  harness:
+    name: AI Harness (MLM + Contratos + ACID)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Ejecutar Suite MLM (Comisiones 10% / 5% / 2%)
+        run: python harness/ai_harness.py test mlm
+
+      - name: Ejecutar Suite de Contratos API
+        run: python harness/ai_harness.py test contracts
+
+      - name: Ejecutar Simulación ACID de Rollback
+        run: python harness/ai_harness.py test acid-sim
+
+      - name: Comprobar Trazabilidad de Requerimientos
+        run: python harness/ai_harness.py status
+
+  # ----------------------------------------------------------------------------
+  # 3. VERIFICACIÓN DEL BACKEND (GO / FIBER)
+  # ----------------------------------------------------------------------------
+  backend:
+    name: Backend (Go Build Check)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: multicatalogo-backend/go.sum
+
+      - name: Verificar compilación del servidor
+        run: |
+          cd multicatalogo-backend
+          go mod edit -go=1.24.0 2>/dev/null || true
+          go build -v .

@@ -21,10 +21,12 @@ RUN apk add --no-cache ca-certificates git tzdata
 
 # Cachear dependencias de Go de forma independiente al código fuente
 COPY go.mod go.sum ./
+RUN go mod edit -go=1.24.0 2>/dev/null || true
 RUN go mod download && go mod verify
 
 # Copiar el código fuente completo
 COPY . .
+RUN go mod edit -go=1.24.0 2>/dev/null || true
 
 # Compilación estática pura optimizada para producción
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
