@@ -65,14 +65,14 @@
 - [x] Orquestación contenerizada con `docker-compose.yml` (PostgreSQL 16 en 5434 + Redis en 6379).
 - [x] Script DDL completo de migración y seed inicial `database/init.sql`.
 - [x] Archivo de variables de entorno `.env.example`.
-- [ ] Conexión activa a pool `pgx/v5` en host (requiere Docker daemon).
-- [ ] Conexión activa a Redis en host (requiere Docker daemon).
+- [x] Repositorio nativo `pgx/v5` con pool de conexiones y fallback en memoria (`repository/repository.go`).
+- [x] Patrón Cache-Aside en Redis con TTL (5m en catálogo, 10m en red) e invalidación reactiva (`repository/cache.go`).
 
 ### U2-T4 · Inyección de Dependencias, Transacciones ACID y Seguridad
 - [x] Endpoint `POST /api/checkout` con descuento seguro de inventario y recálculo de precios.
 - [x] Control de stock con retorno de error 400 ante inventario insuficiente.
 - [x] Roles diferenciados en autenticación (`admin` / `cliente`).
-- [ ] Driver de base de datos con bloqueo pesimista en vivo `FOR UPDATE`.
+- [x] Transacción ACID con bloqueo pesimista `SELECT ... FOR UPDATE` sobre stock (`repository.CrearPedidoTransaccional`).
 - [x] Middlewares JWT con clave HMAC-SHA256 en vivo (`RequireAuth`, `RequireAdmin`).
 
 ---
