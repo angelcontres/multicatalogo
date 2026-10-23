@@ -11,6 +11,8 @@ import Carrito from './components/Carrito';
 import Checkout from './components/Checkout';
 import Confirmacion from './components/Confirmacion';
 import Login from './components/Login';
+import { InstallPwaBanner } from './components/InstallPwaBanner';
+import { OfflineBanner } from './components/OfflineBanner';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/auth';
@@ -56,6 +58,8 @@ function App() {
     <AuthProvider>
       <CartBoundary>
         <BrowserRouter>
+          <OfflineBanner />
+          <InstallPwaBanner />
           <Routes>
             {/* Ruta pública */}
             <Route path="/login" element={<Login />} />

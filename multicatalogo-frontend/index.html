@@ -1,22 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <title>MultiCatálogo — Cosméticos & Red Multinivel</title>
+    <meta name="description" content="MultiCatálogo: Catálogo digital cosmético interactivo, tienda full-screen y plataforma de red multinivel." />
+
+    <!-- Favicon e Iconografía -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>practica02-react-bases</title>
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    <!-- Configuración PWA (Progressive Web App) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="MultiCatálogo" />
   </head>
-  <body>
+  <body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
-<!-- Comentario HTML 
- 
-type="module", 
-le estamos diciendo al navegador web: 
-"Oye, este código utiliza el estándar moderno ECMAScript Modules (ESM). 
-Vas a encontrar palabras reservadas como import y export en su interior".
-
--->
