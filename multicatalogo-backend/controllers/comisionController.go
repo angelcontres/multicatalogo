@@ -168,7 +168,7 @@ func GetMisComisiones(c *fiber.Ctx) error {
 	// 1. Si PostgreSQL está activo, consultar comisiones persistidas
 	if config.DBPool != nil {
 		var args []interface{}
-		query := `SELECT id, pedido_id, referido_id, nivel, porcentaje, monto, estado, liquidacion_id, creado_en FROM comisiones`
+		query := `SELECT id, pedido_id, referido_id, nivel, porcentaje, monto, estado, liquidacion_id, COALESCE(creado_en::text, '') FROM comisiones`
 		if claims.Rol != "admin" {
 			query += " WHERE referido_id = $1 ORDER BY id DESC"
 			args = append(args, targetRefID)
@@ -179,7 +179,7 @@ func GetMisComisiones(c *fiber.Ctx) error {
 		rows, err := config.DBPool.Query(c.Context(), query, args...)
 		if err == nil {
 			defer rows.Close()
-			var misComisiones []models.Comision
+			misComisiones := make([]models.Comision, 0)
 			var totalPendiente float64 = 0.0
 			var totalPagado float64 = 0.0
 
@@ -194,11 +194,13 @@ func GetMisComisiones(c *fiber.Ctx) error {
 					}
 				}
 			}
-			return c.JSON(fiber.Map{
-				"comisiones":      misComisiones,
-				"total_pendiente": totalPendiente,
-				"total_pagado":    totalPagado,
-			})
+			if len(misComisiones) > 0 {
+				return c.JSON(fiber.Map{
+					"comisiones":      misComisiones,
+					"total_pendiente": totalPendiente,
+					"total_pagado":    totalPagado,
+				})
+			}
 		}
 	}
 
@@ -206,7 +208,7 @@ func GetMisComisiones(c *fiber.Ctx) error {
 	comisionesMutex.RLock()
 	defer comisionesMutex.RUnlock()
 
-	var misComisiones []models.Comision
+	misComisiones := make([]models.Comision, 0)
 	var totalPendiente float64 = 0.0
 	var totalPagado float64 = 0.0
 
@@ -232,20 +234,22 @@ func GetMisComisiones(c *fiber.Ctx) error {
 func GetLiquidaciones(c *fiber.Ctx) error {
 	if config.DBPool != nil {
 		rows, err := config.DBPool.Query(c.Context(), `
-			SELECT id, referido_id, total, estado, creado_en, pagada_en
+			SELECT id, referido_id, total, estado, COALESCE(creado_en::text, ''), COALESCE(pagada_en::text, '')
 			FROM liquidaciones
 			ORDER BY id DESC
 		`)
 		if err == nil {
 			defer rows.Close()
-			var list []models.Liquidacion
+			list := make([]models.Liquidacion, 0)
 			for rows.Next() {
 				var l models.Liquidacion
 				if err := rows.Scan(&l.ID, &l.ReferidoID, &l.Total, &l.Estado, &l.CreadoEn, &l.PagadaEn); err == nil {
 					list = append(list, l)
 				}
 			}
-			return c.JSON(list)
+			if len(list) > 0 {
+				return c.JSON(list)
+			}
 		}
 	}
 

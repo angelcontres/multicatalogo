@@ -200,7 +200,7 @@ func GetMisPedidos(c *fiber.Ctx) error {
 	pedidosMutex.RLock()
 	defer pedidosMutex.RUnlock()
 
-	var misPedidos []models.Pedido
+	misPedidos := make([]models.Pedido, 0)
 	for _, p := range pedidosStore {
 		if p.ClienteEmail == claims.Email {
 			misPedidos = append(misPedidos, p)
@@ -263,10 +263,12 @@ func GetPedidosAdmin(c *fiber.Ctx) error {
 	defer pedidosMutex.RUnlock()
 
 	if estadoFiltro == "" {
-		return c.JSON(pedidosStore)
+		all := make([]models.Pedido, len(pedidosStore))
+		copy(all, pedidosStore)
+		return c.JSON(all)
 	}
 
-	var filtrados []models.Pedido
+	filtrados := make([]models.Pedido, 0)
 	for _, p := range pedidosStore {
 		if p.Estado == estadoFiltro {
 			filtrados = append(filtrados, p)
