@@ -5,12 +5,18 @@
 // - Productos destacados
 // - Explicación del modelo multinivel
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/cart';
+import { useToast } from '../context/toast';
 import { getProductos } from '../services/productosService';
 import type { Producto } from '../data/productos';
 import { categorias } from '../data/productos';
 
 const Storefront = () => {
+  const { addToCart } = useCart();
+  const { showToast } = useToast();
+  const navigate = useNavigate();
+
   const [destacados, setDestacados] = useState<Producto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -22,6 +28,17 @@ const Storefront = () => {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  const handleAddFeatured = (prod: Producto) => {
+    addToCart(prod);
+    showToast({
+      title: "¡Producto Agregado!",
+      message: `${prod.nombre} añadido a tu carrito`,
+      type: "success",
+      actionText: "Ver Carrito",
+      onAction: () => navigate("/carrito"),
+    });
+  };
 
   return (
     <div>
@@ -93,24 +110,35 @@ const Storefront = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {destacados.map((prod) => (
-                <Link
+                <div
                   key={prod.id}
-                  to={`/producto/${prod.id}`}
-                  className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all group flex flex-col"
+                  className="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-lg transition-all group flex flex-col justify-between"
                 >
-                  <img
-                    src={prod.img}
-                    alt={prod.nombre}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <div className="p-4 flex flex-col flex-1">
-                    <p className="text-xs uppercase tracking-wide text-indigo-500 font-semibold">
-                      {prod.categoria}
-                    </p>
-                    <h3 className="font-semibold text-slate-800 mt-1">{prod.nombre}</h3>
-                    <p className="text-indigo-600 font-bold mt-2">${prod.precio.toFixed(2)}</p>
+                  <Link to={`/producto/${prod.id}`} className="block">
+                    <img
+                      src={prod.img}
+                      alt={prod.nombre}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <div className="p-4">
+                      <p className="text-xs uppercase tracking-wide text-indigo-500 font-semibold">
+                        {prod.categoria}
+                      </p>
+                      <h3 className="font-bold text-slate-800 mt-1 group-hover:text-indigo-600 transition">{prod.nombre}</h3>
+                      <p className="text-indigo-600 font-extrabold mt-1">${prod.precio.toFixed(2)}</p>
+                    </div>
+                  </Link>
+                  <div className="p-4 pt-0">
+                    <button
+                      type="button"
+                      onClick={() => handleAddFeatured(prod)}
+                      className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 shadow-xs"
+                    >
+                      <span>+</span>
+                      <span>Añadir al Carrito</span>
+                    </button>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}

@@ -11,22 +11,48 @@ const Carrito = () => {
     removeFromCart,
     incrementQuantity,
     decrementQuantity,
+    clearCart,
+    loadSampleItems,
     totalPrice,
   } = useCart();
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">Tu Carrito de Compras</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <h1 className="text-2xl font-bold text-slate-800">Tu Carrito de Compras</h1>
+        {cart.length > 0 && (
+          <button
+            type="button"
+            onClick={clearCart}
+            className="text-xs text-rose-600 hover:text-rose-800 font-semibold cursor-pointer underline"
+          >
+            Vaciar Carrito
+          </button>
+        )}
+      </div>
 
       {cart.length === 0 ? (
-        <div className="bg-white p-8 rounded-lg border border-slate-200 shadow-sm text-center">
-          <p className="text-slate-500">Tu carrito está vacío actualmente.</p>
-          <Link
-            to="/catalogo"
-            className="inline-block mt-4 bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-indigo-700 transition"
-          >
-            Explorar Catálogo
-          </Link>
+        <div className="bg-white p-10 rounded-2xl border border-slate-200 shadow-xs text-center max-w-lg mx-auto my-8">
+          <span className="text-5xl">🛍️</span>
+          <h2 className="text-xl font-bold text-slate-800 mt-3">Tu carrito está vacío</h2>
+          <p className="text-slate-500 text-sm mt-1 max-w-sm mx-auto">
+            Añade cosméticos desde el catálogo o carga productos de prueba para simular el proceso de compra.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+            <button
+              type="button"
+              onClick={loadSampleItems}
+              className="bg-indigo-600 text-white font-bold px-5 py-3 rounded-xl hover:bg-indigo-700 transition text-xs shadow-md cursor-pointer flex items-center justify-center gap-2"
+            >
+              <span>⚡</span> Cargar Productos de Prueba
+            </button>
+            <Link
+              to="/catalogo"
+              className="bg-slate-100 text-slate-700 font-bold px-5 py-3 rounded-xl hover:bg-slate-200 transition text-xs text-center"
+            >
+              Explorar Catálogo Completo
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
