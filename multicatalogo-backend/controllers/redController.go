@@ -4,6 +4,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -191,6 +192,13 @@ func GetRed(c *fiber.Ctx) error {
 	userEmail := "global"
 	if claims, ok := c.Locals("usuario").(*config.CustomClaims); ok && claims != nil {
 		userEmail = claims.Email
+	} else if authHeader := c.Get("Authorization"); authHeader != "" {
+		parts := strings.Split(authHeader, " ")
+		if len(parts) == 2 && parts[0] == "Bearer" {
+			if claims, err := config.VerifyToken(parts[1]); err == nil && claims != nil {
+				userEmail = claims.Email
+			}
+		}
 	}
 
 	cacheKey := fmt.Sprintf("red:tree:%s", userEmail)

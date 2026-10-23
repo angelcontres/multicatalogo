@@ -43,6 +43,23 @@ func RequireAuth() fiber.Handler {
 	}
 }
 
+// OptionalAuth intenta extraer y validar el token JWT si está presente en el header Authorization,
+// pero no bloquea la petición si el cliente no envía credenciales.
+func OptionalAuth() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		authHeader := c.Get("Authorization")
+		if authHeader != "" {
+			parts := strings.Split(authHeader, " ")
+			if len(parts) == 2 && parts[0] == "Bearer" {
+				if claims, err := config.VerifyToken(parts[1]); err == nil && claims != nil {
+					c.Locals("usuario", claims)
+				}
+			}
+		}
+		return c.Next()
+	}
+}
+
 // RequireAdmin valida que el usuario autenticado tenga el rol 'admin'.
 func RequireAdmin() fiber.Handler {
 	return func(c *fiber.Ctx) error {

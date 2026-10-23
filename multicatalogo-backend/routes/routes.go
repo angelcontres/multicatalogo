@@ -35,7 +35,7 @@ func SetupRoutes(app *fiber.App) {
 	api.Patch("/pedidos/:id/estado", middleware.RequireAuth(), middleware.RequireAdmin(), controllers.ActualizarEstadoPedido)
 
 	// Red Multinivel y Ledger de Comisiones
-	api.Get("/red", controllers.GetRed)
+	api.Get("/red", middleware.OptionalAuth(), controllers.GetRed)
 	api.Get("/comisiones/mias", middleware.RequireAuth(), controllers.GetMisComisiones)
 
 	// Liquidaciones a Distribuidores (Admin)
