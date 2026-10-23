@@ -27,6 +27,9 @@ React SPA (:5173) ──fetch (Bearer JWT)──► Go/Fiber API (:3000) ──p
 | `context_docs/` | Documentos didácticos originales (guías de laboratorio, notebooks de fases, sílabo). |
 | `multicatalogo-frontend/` | SPA React 19 + TypeScript + Vite + Tailwind CSS v4 + React Router v7. |
 | `multicatalogo-backend/` | API REST transaccional Go + Fiber v2 + pgx + Redis. |
+| `docker/` | Configuración del API Gateway & Reverse Proxy Nginx perimetral con Rate Limiting. |
+| `docker-compose.prod.yml` | Orquestación de producción Zero-Trust (Gateway, Frontend, Backend, Postgres 5434, Redis 6379). |
+| `scripts/` | Automatización de despliegue en producción (`prod-deploy.ps1` y `prod-deploy.sh`). |
 
 ## Frontend (`multicatalogo-frontend/src/`)
 

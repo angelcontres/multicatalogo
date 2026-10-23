@@ -24,6 +24,7 @@ Para garantizar la máxima legibilidad, mantenimiento y ahorro de contexto para 
 | [`05_cache_y_rendimiento/`](file:///C:/Users/OMEN/Documents/remontada/docs/sdd/05_cache_y_rendimiento/) | Patrón Cache-Aside con Redis Alpine (go-redis v9), claves, TTLs, invalidación reactiva y degradación elegante. | - `01_patron_cache_aside_redis.md` |
 | [`06_seguridad_y_auth/`](file:///C:/Users/OMEN/Documents/remontada/docs/sdd/06_seguridad_y_auth/) | Autenticación JWT sin estado, hashing `bcrypt`, RBAC (`RequireAuth`, `RequireAdmin`), Zero-Trust y vinculación estricta de identidad. | - `01_jwt_rbac_y_zero_trust.md` |
 | [`07_flujos_y_secuencias/`](file:///C:/Users/OMEN/Documents/remontada/docs/sdd/07_flujos_y_secuencias/) | Diagramas de secuencia de procesos transaccionales: Checkout ACID + Comisiones asíncronas, y Cancelación simétrica con Clawback. | - `01_flujo_checkout_y_comisiones.md`<br>- `02_flujo_cancelacion_clawback.md` |
+| [`08_despliegue_produccion/`](file:///C:/Users/OMEN/Documents/remontada/docs/sdd/08_despliegue_produccion/) | Arquitectura de contenerización Docker multi-stage, Reverse Proxy Nginx, Rate Limiting perimetral y orquestación Compose Zero-Trust. | - `01_arquitectura_docker_produccion.md` |
 
 ---
 

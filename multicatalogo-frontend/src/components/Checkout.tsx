@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/cart';
 import { useAuth } from '../context/auth';
+import { API_BASE_URL } from '../services/http';
 
 interface DatosEnvio {
   nombre: string;
@@ -68,7 +69,7 @@ const Checkout = () => {
 
     try {
       const token = localStorage.getItem("multicatalogo_jwt");
-      const res = await fetch("http://localhost:3000/api/checkout", {
+      const res = await fetch(`${API_BASE_URL}/checkout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

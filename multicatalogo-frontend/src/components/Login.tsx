@@ -2,6 +2,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth, type Rol } from "../context/auth";
+import { API_BASE_URL } from "../services/http";
 
 const Login = () => {
   const [email, setEmail] = useState<string>("");
@@ -17,7 +18,7 @@ const Login = () => {
     setLoading(true);
     setError("");
 
-    fetch("http://localhost:3000/api/login", {
+    fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

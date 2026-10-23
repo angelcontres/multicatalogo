@@ -3,8 +3,9 @@
 // Devuelve los productos consultados a la API si está disponible, o usa el mock como fallback.
 
 import { productosMock, type Producto } from "../data/productos";
+import { API_BASE_URL } from "./http";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = API_BASE_URL;
 
 // Obtener catálogo completo
 export const getProductos = async (): Promise<Producto[]> => {

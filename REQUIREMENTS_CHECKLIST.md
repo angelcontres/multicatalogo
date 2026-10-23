@@ -11,9 +11,9 @@
 
 | Ítem | Valor |
 |---|---|
-| **Hito actual** | **Unidad 1 Frontend SPA Completa (Práctica 03) + Unidad 2 Core Transaccional Operativo** |
-| **Última tarea completada** | Implementación completa de vistas full-screen, checkout, lightbox, árbol MLM recursivo, dashboard dinámico, contrato canónico APIError, salud `/api/health`, scripts DDL PostgreSQL y Docker Compose |
-| **Siguiente tarea pendiente** | Conectar drivers nativos pgxpool y go-redis cuando Docker Desktop esté activo en el host |
+| **Hito actual** | **Infraestructura de Producción Docker Ultra-Optimizada (Gateway + Frontend + Backend + Postgres + Redis)** |
+| **Última tarea completada** | Dockerfiles multi-stage (Go estático no-root, Nginx SPA con Gzip/Cache), Nginx API Gateway con Rate Limiting perimetral, Docker Compose producción con segmentación Zero-Trust, scripts de despliegue (`prod-deploy.ps1`/`prod-deploy.sh`) y SDD 08 |
+| **Siguiente tarea pendiente** | Ejecutar despliegue completo en contenedor cuando Docker daemon esté activo |
 | **Bloqueadores** | Docker Desktop detenido en el host (el sistema opera con mock seguro y fallback en memoria hasta que el daemon se inicie) |
 
 ---

@@ -21,7 +21,7 @@ func ConnectRedis() *redis.Client {
 
 	client := redis.NewClient(&redis.Options{
 		Addr:         addr,
-		Password:     "",
+		Password:     getEnv("REDIS_PASSWORD", ""),
 		DB:           0,
 		DialTimeout:  1 * time.Second,
 		ReadTimeout:  1 * time.Second,

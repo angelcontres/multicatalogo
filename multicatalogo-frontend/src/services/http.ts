@@ -1,7 +1,7 @@
 // src/services/http.ts
 // Cliente centralizado de comunicación con la API Go/Fiber
 
-export const API_BASE_URL = "http://localhost:3000/api";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export class ApiError extends Error {
   status: number;

@@ -1,0 +1,241 @@
+# ==============================================================================
+# MULTICATÁLOGO - ARQUITECTURA DE ORQUESTACIÓN EN PRODUCCIÓN (DOCKER COMPOSE)
+# ==============================================================================
+# Estándar de despliegue de alta disponibilidad y seguridad Zero-Trust:
+#   1. Gateway Nginx: Reverse Proxy con Rate Limiting y enrutamiento SPA + API.
+#   2. Frontend: Nginx Alpine sirviendo React 19 + Tailwind CSS compilado.
+#   3. Backend: Go 1.24 / Fiber compilado estáticamente sin CGO.
+#   4. Database: PostgreSQL 16 Alpine con parámetros afinados de memoria.
+#   5. Cache: Redis 7 Alpine con persistencia AOF y política LRU.
+#   6. Aislamiento de Redes: Tráfico público separado estrictamente de la capa de datos.
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. API GATEWAY & REVERSE PROXY (PUNTO ÚNICO DE ENTRADA PÚBLICA)
+  # ----------------------------------------------------------------------------
+  gateway:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: multicatalogo-gateway-prod
+    restart: unless-stopped
+    ports:
+      - "${GATEWAY_PORT:-80}:80"
+      - "${GATEWAY_SSL_PORT:-443}:443"
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - public-net
+      - backend-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80/gateway-health > /dev/null || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.10"
+          memory: 32M
+
+  # ----------------------------------------------------------------------------
+  # 2. FRONTEND SPA (VITE + REACT 19 + TAILWIND CSS)
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./multicatalogo-frontend
+      dockerfile: Dockerfile
+    container_name: multicatalogo-frontend-prod
+    restart: unless-stopped
+    networks:
+      - backend-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80/healthz > /dev/null || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.10"
+          memory: 32M
+
+  # ----------------------------------------------------------------------------
+  # 3. BACKEND API (GO 1.24 / FIBER TRANSACCIONAL)
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./multicatalogo-backend
+      dockerfile: Dockerfile
+    container_name: multicatalogo-backend-prod
+    restart: unless-stopped
+    environment:
+      PORT: "3000"
+      APP_ENV: "production"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_USER: "${DB_USER:-postgres}"
+      DB_PASSWORD: "${DB_PASSWORD:-postgres}"
+      DB_NAME: "${DB_NAME:-multicatalogo}"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-}"
+      JWT_SECRET: "${JWT_SECRET:-clave-super-secreta-produccion-multicatalogo-2026}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend-net
+      - data-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.20"
+          memory: 64M
+
+  # ----------------------------------------------------------------------------
+  # 4. BASE DE DATOS (POSTGRESQL 16 ALPINE CON TUNING DE PRODUCCIÓN)
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: multicatalogo-postgres-prod
+    restart: unless-stopped
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c max_connections=100
+      -c work_mem=4MB
+      -c maintenance_work_mem=32MB
+      -c checkpoint_completion_target=0.9
+      -c log_min_duration_statement=250
+    environment:
+      POSTGRES_DB: "${DB_NAME:-multicatalogo}"
+      POSTGRES_USER: "${DB_USER:-postgres}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-postgres}"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - "${DB_HOST_PORT:-5434}:5432"
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - data-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-multicatalogo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  # ----------------------------------------------------------------------------
+  # 5. CACHÉ DISTRIBUIDA (REDIS 7 ALPINE CON PERSISTENCIA AOF)
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: multicatalogo-redis-prod
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 128mb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    volumes:
+      - redisdata_prod:/data
+    networks:
+      - data-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.10"
+          memory: 32M
+
+# ------------------------------------------------------------------------------
+# VOLÚMENES PERSISTENTES
+# ------------------------------------------------------------------------------
+volumes:
+  pgdata_prod:
+    name: multicatalogo_pgdata_prod
+  redisdata_prod:
+    name: multicatalogo_redisdata_prod
+
+# ------------------------------------------------------------------------------
+# SEGMENTACIÓN DE REDES (ARQUITECTURA ZERO-TRUST MULTI-TIER)
+# ------------------------------------------------------------------------------
+networks:
+  # Red pública para el Gateway Nginx
+  public-net:
+    name: multicatalogo_public_net
+    driver: bridge
+
+  # Red interna intermedia: Gateway <-> Frontend / Backend
+  backend-net:
+    name: multicatalogo_backend_net
+    driver: bridge
+
+  # Red de datos estrictamente aislada: Backend <-> PostgreSQL & Redis
+  data-net:
+    name: multicatalogo_data_net
+    driver: bridge
