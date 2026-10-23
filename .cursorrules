@@ -1,0 +1,9 @@
+# Cursor Rules — MultiCatálogo
+# See AGENTS.md and .windsurfrules for full specifications
+
+- Always refer to `PROJECT_MAP.md` before exploring or searching code.
+- Always check `REQUIREMENTS_CHECKLIST.md` to know the project status.
+- Follow the canonical API error structure: {"status": int, "message": string, "details": any}.
+- Port configuration: Frontend :5173, Backend :3000, PostgreSQL :5434, Redis :6379.
+- Maintain pure domain functions for MLM commissions (10% L1, 5% L2, 2% L3).
+- Always use `python harness/ai_harness.py doctor` and `python harness/ai_harness.py test [suite]` for verification.

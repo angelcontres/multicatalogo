@@ -1,0 +1,26 @@
+# Directivas de Ahorro de Tokens y Reglas del Agente (MultiCatálogo)
+
+## 1. Navegación y Lectura Quirúrgica
+- NUNCA hagas escaneos recursivos ni leas carpetas completas a ciegas.
+- Consulta primero `PROJECT_MAP.md` para ubicar el archivo exacto antes de leer código.
+- Al iniciar cualquier sesión o tarea, lee PRIMERO `REQUIREMENTS_CHECKLIST.md` para conocer el estado y qué falta por implementar. No explores el código para adivinar el progreso.
+- Lee únicamente los archivos que vas a modificar de forma puntual. Prohibido reescribir archivos enteros si solo cambia una función.
+
+## 2. Actualización Continua de Estado
+- Cada vez que completes una tarea, endpoint o prueba con éxito, actualiza inmediatamente `REQUIREMENTS_CHECKLIST.md` marcando la casilla correspondiente (`- [x]`) y actualizando la sección de estado general.
+
+## 3. Uso de Herramientas de Verificación (Playwright / HTTP)
+- NUNCA tomes capturas de pantalla (screenshots) ni pidas el DOM completo/HTML de la página para verificaciones.
+- Extrae únicamente el texto visible o el selector CSS puntual del elemento que se está testeando.
+- Para verificar APIs o respuestas JSON, usa peticiones HTTP directas en lugar de abrir el navegador.
+- Utiliza la suite de validación `python harness/ai_harness.py test [mlm|contracts|acid-sim]` para verificaciones instantáneas de bajo costo de tokens.
+
+## 4. Uso de Memoria Persistente
+- Guarda en memoria persistente ÚNICAMENTE:
+  1. Causa raíz y solución final de errores de configuración o entorno recurrentes.
+  2. Puertos locales y variables clave del proyecto (ej. PostgreSQL en 5434, Go en 3000, Vite en 5173).
+- PROHIBIDO guardar código fuente completo, trazas de error (stack traces) o historial de chat en la memoria.
+
+## 5. Manejo de Errores y Diagnósticos
+- Si una prueba falla, ejecuta SOLO ese test unitario individual, nunca la suite completa.
+- Si el mismo error persiste tras 2 intentos de solución, DETENTE y explica la hipótesis conceptual antes de editar más archivos.
