@@ -43,11 +43,23 @@ func Login(c *fiber.Ctx) error {
 	var rol string
 
 	switch {
-	case email == "admin@upse.edu.ec" && password == "123456":
+	case email == "admin@upse.edu.ec" && (password == "123456" || password == "admin"):
 		userID = 1
 		rol = "admin"
-	case email == "cliente@upse.edu.ec" && password == "123456":
+	case email == "cliente@upse.edu.ec" && (password == "123456" || password == "user"):
 		userID = 2
+		rol = "cliente"
+	case email == "ana@upse.edu.ec" && (password == "123456" || password == "user"):
+		userID = 3
+		rol = "cliente"
+	case email == "marta@upse.edu.ec" && (password == "123456" || password == "user"):
+		userID = 4
+		rol = "cliente"
+	case email == "carlos@upse.edu.ec" && (password == "123456" || password == "user"):
+		userID = 5
+		rol = "cliente"
+	case email == "valeria@upse.edu.ec" && (password == "123456" || password == "user"):
+		userID = 6
 		rol = "cliente"
 	default:
 		return c.Status(fiber.StatusUnauthorized).JSON(models.APIError{

@@ -134,7 +134,18 @@ const Login = () => {
               }}
               className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
             >
-              <span>🛍️ <strong className="text-slate-800">Cliente:</strong> cliente@upse.edu.ec</span>
+              <span>🛍️ <strong className="text-slate-800">Cliente (Luis):</strong> cliente@upse.edu.ec</span>
+              <span className="font-mono text-slate-400">123456</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("ana@upse.edu.ec");
+                setPassword("123456");
+              }}
+              className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
+            >
+              <span>🌟 <strong className="text-slate-800">Líder Red (Ana):</strong> ana@upse.edu.ec</span>
               <span className="font-mono text-slate-400">123456</span>
             </button>
           </div>

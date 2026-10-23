@@ -13,19 +13,31 @@ import (
 var (
 	comisionesMutex sync.RWMutex
 	comisionesStore = []models.Comision{
-		{ID: 1, PedidoID: 1001, ReferidoID: 2, Nivel: 1, Porcentaje: 0.10, Monto: 10.25, Estado: "pendiente"},
-		{ID: 2, PedidoID: 1001, ReferidoID: 0, Nivel: 2, Porcentaje: 0.05, Monto: 5.12, Estado: "pendiente"},
+		{ID: 1, PedidoID: 1001, ReferidoID: 0, Nivel: 1, Porcentaje: 0.10, Monto: 7.75, Estado: "pagada"},
+		{ID: 2, PedidoID: 1002, ReferidoID: 0, Nivel: 1, Porcentaje: 0.10, Monto: 8.40, Estado: "pendiente"},
+		{ID: 3, PedidoID: 1003, ReferidoID: 0, Nivel: 1, Porcentaje: 0.10, Monto: 12.90, Estado: "pagada"},
+		{ID: 4, PedidoID: 1004, ReferidoID: 1, Nivel: 1, Porcentaje: 0.10, Monto: 9.40, Estado: "pendiente"},
+		{ID: 5, PedidoID: 1004, ReferidoID: 0, Nivel: 2, Porcentaje: 0.05, Monto: 4.70, Estado: "pendiente"},
+		{ID: 6, PedidoID: 1005, ReferidoID: 0, Nivel: 1, Porcentaje: 0.10, Monto: 5.00, Estado: "pendiente"},
 	}
 
 	liquidacionesMutex sync.RWMutex
 	liquidacionesStore = []models.Liquidacion{
 		{
 			ID:         1,
-			ReferidoID: 0,
-			Total:      240.00,
+			ReferidoID: 1,
+			Total:      85.00,
 			Estado:     "pagada",
-			CreadoEn:   time.Now().Add(-48 * time.Hour).Format(time.RFC3339),
-			PagadaEn:   time.Now().Add(-24 * time.Hour).Format(time.RFC3339),
+			CreadoEn:   time.Now().Add(-168 * time.Hour).Format(time.RFC3339),
+			PagadaEn:   time.Now().Add(-168 * time.Hour).Format(time.RFC3339),
+		},
+		{
+			ID:         2,
+			ReferidoID: 2,
+			Total:      62.00,
+			Estado:     "pagada",
+			CreadoEn:   time.Now().Add(-96 * time.Hour).Format(time.RFC3339),
+			PagadaEn:   time.Now().Add(-96 * time.Hour).Format(time.RFC3339),
 		},
 	}
 )

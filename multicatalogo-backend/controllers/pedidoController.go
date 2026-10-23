@@ -16,12 +16,48 @@ var (
 		{
 			ID:           1001,
 			ClienteEmail: "cliente@upse.edu.ec",
-			Total:        102.50,
+			Total:        77.50,
 			Estado:       "entregado",
 			Items: []models.ItemPedido{
 				{ProductoID: 1, Cantidad: 1, PrecioUnitario: 45.00},
 				{ProductoID: 2, Cantidad: 1, PrecioUnitario: 32.50},
-				{ProductoID: 3, Cantidad: 1, PrecioUnitario: 25.00},
+			},
+		},
+		{
+			ID:           1002,
+			ClienteEmail: "cliente@upse.edu.ec",
+			Total:        84.00,
+			Estado:       "enviado",
+			Items: []models.ItemPedido{
+				{ProductoID: 3, Cantidad: 3, PrecioUnitario: 28.00},
+			},
+		},
+		{
+			ID:           1003,
+			ClienteEmail: "ana@upse.edu.ec",
+			Total:        129.00,
+			Estado:       "entregado",
+			Items: []models.ItemPedido{
+				{ProductoID: 8, Cantidad: 1, PrecioUnitario: 129.00},
+			},
+		},
+		{
+			ID:           1004,
+			ClienteEmail: "carlos@upse.edu.ec",
+			Total:        94.00,
+			Estado:       "preparando",
+			Items: []models.ItemPedido{
+				{ProductoID: 5, Cantidad: 1, PrecioUnitario: 58.00},
+				{ProductoID: 9, Cantidad: 1, PrecioUnitario: 36.00},
+			},
+		},
+		{
+			ID:           1005,
+			ClienteEmail: "cliente@upse.edu.ec",
+			Total:        50.00,
+			Estado:       "pendiente",
+			Items: []models.ItemPedido{
+				{ProductoID: 4, Cantidad: 1, PrecioUnitario: 50.00},
 			},
 		},
 	}

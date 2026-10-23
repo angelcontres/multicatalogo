@@ -23,37 +23,96 @@ export const TASA_COMISION: Record<number, number> = {
 export const redInicial: Referido = {
   id: 0,
   nombre: "Tú",
+  codigo: "TU",
   nivel: 0,
-  ventas: 2400,
+  ventas: 3850,
   hijos: [
     {
       id: 1,
       nombre: "Ana García",
+      codigo: "ANA",
       nivel: 1,
-      ventas: 1200,
+      ventas: 1850,
       hijos: [
         {
           id: 4,
           nombre: "Carlos Ruiz",
+          codigo: "CARLOS",
           nivel: 2,
-          ventas: 500,
+          ventas: 620,
           hijos: [
-            { id: 7, nombre: "Diana Paz", nivel: 3, ventas: 300 },
+            { id: 7, nombre: "Diana Paz", codigo: "DIANA", nivel: 3, ventas: 350 },
+            { id: 13, nombre: "Felipe Silva", codigo: "FELIPE", nivel: 3, ventas: 280 },
           ],
         },
-        { id: 5, nombre: "Sofía León", nivel: 2, ventas: 430 },
+        { id: 5, nombre: "Sofía León", codigo: "SOFIA", nivel: 2, ventas: 540 },
       ],
     },
     {
       id: 2,
       nombre: "Luis Poveda",
+      codigo: "LUIS",
       nivel: 1,
-      ventas: 850,
+      ventas: 1420,
       hijos: [
-        { id: 6, nombre: "Marco Díaz", nivel: 2, ventas: 380 },
+        {
+          id: 6,
+          nombre: "Marco Díaz",
+          codigo: "MARCO",
+          nivel: 2,
+          ventas: 480,
+          hijos: [
+            { id: 14, nombre: "Gabriel Morales", codigo: "GABRIEL", nivel: 3, ventas: 310 },
+          ],
+        },
+        { id: 10, nombre: "Javier Ortiz", codigo: "JAVIER", nivel: 2, ventas: 390 },
       ],
     },
-    { id: 3, nombre: "Marta Sánchez", nivel: 1, ventas: 430 },
+    {
+      id: 3,
+      nombre: "Marta Sánchez",
+      codigo: "MARTA",
+      nivel: 1,
+      ventas: 980,
+      hijos: [
+        {
+          id: 11,
+          nombre: "Andrea Mora",
+          codigo: "ANDREA",
+          nivel: 2,
+          ventas: 510,
+          hijos: [
+            { id: 15, nombre: "Natalia Vega", codigo: "NATALIA", nivel: 3, ventas: 410 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 8,
+      nombre: "Carlos Mendoza",
+      codigo: "CARLOSM",
+      nivel: 1,
+      ventas: 750,
+    },
+    {
+      id: 9,
+      nombre: "Valeria Castro",
+      codigo: "VALERIA",
+      nivel: 1,
+      ventas: 1100,
+      hijos: [
+        {
+          id: 12,
+          nombre: "Diego Torres",
+          codigo: "DIEGO",
+          nivel: 2,
+          ventas: 420,
+          hijos: [
+            { id: 16, nombre: "Camila Rivas", codigo: "CAMILA", nivel: 3, ventas: 260 },
+          ],
+        },
+      ],
+    },
   ],
 };
 

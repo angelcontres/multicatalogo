@@ -19,6 +19,9 @@ export const categorias = [
   "Tónico",
   "Mascarilla",
   "Kit",
+  "Protector",
+  "Limpiador",
+  "Aceite",
 ];
 
 export const productosMock: Producto[] = [
@@ -132,6 +135,136 @@ export const productosMock: Producto[] = [
       "https://picsum.photos/seed/kit1/600",
       "https://picsum.photos/seed/kit2/600",
       "https://picsum.photos/seed/kit3/600",
+    ],
+  },
+  {
+    id: 9,
+    nombre: "Protector Solar Facial SPF 50+",
+    descripcion:
+      "Fluido solar invisible no comedogénico con filtros minerales y toque seco mate. Protección UVA/UVB de amplio espectro.",
+    precio: 36.0,
+    categoria: "Protector",
+    img: "https://picsum.photos/seed/solar/600",
+    galeria: [
+      "https://picsum.photos/seed/solar1/600",
+      "https://picsum.photos/seed/solar2/600",
+    ],
+  },
+  {
+    id: 10,
+    nombre: "Gel Limpiador Espumoso",
+    descripcion:
+      "Limpiador facial suave con pH 5.5, ceramidas esenciales y extracto calmante de manzanilla. Remueve impurezas sin resecar.",
+    precio: 24.0,
+    categoria: "Limpiador",
+    img: "https://picsum.photos/seed/cleanser/600",
+    galeria: [
+      "https://picsum.photos/seed/cleanser1/600",
+      "https://picsum.photos/seed/cleanser2/600",
+    ],
+  },
+  {
+    id: 11,
+    nombre: "Aceite Facial de Escualano",
+    descripcion:
+      "Aceite vegetal 100% puro derivado de caña de azúcar que sella la humedad e incrementa la elasticidad sin efecto graso.",
+    precio: 48.0,
+    categoria: "Aceite",
+    img: "https://picsum.photos/seed/oil/600",
+    galeria: [
+      "https://picsum.photos/seed/oil1/600",
+      "https://picsum.photos/seed/oil2/600",
+    ],
+  },
+  {
+    id: 12,
+    nombre: "Mascarilla de Arcilla Rosa",
+    descripcion:
+      "Mascarilla purificante desintoxicante con arcilla rosa francesa y extracto de aloe vera. Reduce poros y absorbe impurezas.",
+    precio: 38.5,
+    categoria: "Mascarilla",
+    img: "https://picsum.photos/seed/clay/600",
+    galeria: [
+      "https://picsum.photos/seed/clay1/600",
+      "https://picsum.photos/seed/clay2/600",
+    ],
+  },
+  {
+    id: 13,
+    nombre: "Serum Niacinamida 10% + Zinc",
+    descripcion:
+      "Tratamiento intensivo para minimizar poros visibles, reducir manchas y regular el exceso de producción sebácea.",
+    precio: 42.0,
+    categoria: "Serum",
+    img: "https://picsum.photos/seed/niacinamide/600",
+    galeria: [
+      "https://picsum.photos/seed/niacinamide1/600",
+      "https://picsum.photos/seed/niacinamide2/600",
+    ],
+  },
+  {
+    id: 14,
+    nombre: "Bálsamo Labial con Péptidos",
+    descripcion:
+      "Bálsamo labial ultra-hidratante enriquecido con manteca de cacao pura y péptidos voluminizadores para labios suaves.",
+    precio: 18.0,
+    categoria: "Crema",
+    img: "https://picsum.photos/seed/lip/600",
+    galeria: [
+      "https://picsum.photos/seed/lip1/600",
+      "https://picsum.photos/seed/lip2/600",
+    ],
+  },
+  {
+    id: 15,
+    nombre: "Agua Micelar Calmante",
+    descripcion:
+      "Agua micelar desmaquillante bifásica enriquecida con centella asiática, ideal para calmar pieles sensibles y reactivas.",
+    precio: 22.0,
+    categoria: "Limpiador",
+    img: "https://picsum.photos/seed/micellar/600",
+    galeria: [
+      "https://picsum.photos/seed/micellar1/600",
+      "https://picsum.photos/seed/micellar2/600",
+    ],
+  },
+  {
+    id: 16,
+    nombre: "Bruma Hidratante Poliglutámica",
+    descripcion:
+      "Spray facial refrescante ultraligero que retiene la hidratación hasta 4 veces más que el ácido hialurónico tradicional.",
+    precio: 30.0,
+    categoria: "Tónico",
+    img: "https://picsum.photos/seed/mist/600",
+    galeria: [
+      "https://picsum.photos/seed/mist1/600",
+      "https://picsum.photos/seed/mist2/600",
+    ],
+  },
+  {
+    id: 17,
+    nombre: "Fluido Matificante Mat-Pro",
+    descripcion:
+      "Emulsión facial ultraligera reguladora formulada con extracto de bambú para mantener la piel suave y mate todo el día.",
+    precio: 35.0,
+    categoria: "Crema",
+    img: "https://picsum.photos/seed/matt/600",
+    galeria: [
+      "https://picsum.photos/seed/matt1/600",
+      "https://picsum.photos/seed/matt2/600",
+    ],
+  },
+  {
+    id: 18,
+    nombre: "Kit Glow Intensivo",
+    descripcion:
+      "Dúo luminoso de choque: serum de vitamina C activa y mascarilla de arcilla rosa francesa para un rostro radiante.",
+    precio: 78.0,
+    categoria: "Kit",
+    img: "https://picsum.photos/seed/glowkit/600",
+    galeria: [
+      "https://picsum.photos/seed/glowkit1/600",
+      "https://picsum.photos/seed/glowkit2/600",
     ],
   },
 ];

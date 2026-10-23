@@ -20,6 +20,10 @@ var (
 	memUsuarios = []models.Usuario{
 		{ID: 1, Email: "admin@upse.edu.ec", Password: "admin", Nombre: "Administrador General", Rol: "admin", Activo: true},
 		{ID: 2, Email: "cliente@upse.edu.ec", Password: "user", Nombre: "Luis Poveda", Rol: "cliente", Activo: true},
+		{ID: 3, Email: "ana@upse.edu.ec", Password: "user", Nombre: "Ana García", Rol: "cliente", Activo: true},
+		{ID: 4, Email: "marta@upse.edu.ec", Password: "user", Nombre: "Marta Sánchez", Rol: "cliente", Activo: true},
+		{ID: 5, Email: "carlos@upse.edu.ec", Password: "user", Nombre: "Carlos Ruiz", Rol: "cliente", Activo: true},
+		{ID: 6, Email: "valeria@upse.edu.ec", Password: "user", Nombre: "Valeria Castro", Rol: "cliente", Activo: true},
 	}
 
 	memProductos = []models.Producto{
@@ -31,6 +35,16 @@ var (
 		{ID: 6, Nombre: "Crema Contorno de Ojos", Descripcion: "Contorno de ojos con cafeína y péptidos.", Precio: 26.00, Stock: 18, Categoria: "Crema", Img: "https://picsum.photos/seed/ojos/600", Galeria: []string{"https://picsum.photos/seed/ojos1/600"}, Activo: true},
 		{ID: 7, Nombre: "Tónico Exfoliante AHA-BHA", Descripcion: "Exfoliación química suave con ácidos AHA y BHA.", Precio: 34.00, Stock: 14, Categoria: "Tónico", Img: "https://picsum.photos/seed/exfoliante/600", Galeria: []string{"https://picsum.photos/seed/exfoliante1/600"}, Activo: true},
 		{ID: 8, Nombre: "Kit Rutina Completa", Descripcion: "Kit integral de limpieza, tratamiento e hidratación.", Precio: 129.00, Stock: 8, Categoria: "Kit", Img: "https://picsum.photos/seed/kit/600", Galeria: []string{"https://picsum.photos/seed/kit1/600"}, Activo: true},
+		{ID: 9, Nombre: "Protector Solar Facial SPF 50+", Descripcion: "Fluido solar invisible no comedogénico con filtros minerales.", Precio: 36.00, Stock: 30, Categoria: "Protector", Img: "https://picsum.photos/seed/solar/600", Galeria: []string{"https://picsum.photos/seed/solar1/600"}, Activo: true},
+		{ID: 10, Nombre: "Gel Limpiador Espumoso", Descripcion: "Limpiador facial suave con pH 5.5 y ceramidas.", Precio: 24.00, Stock: 22, Categoria: "Limpiador", Img: "https://picsum.photos/seed/cleanser/600", Galeria: []string{"https://picsum.photos/seed/cleanser1/600"}, Activo: true},
+		{ID: 11, Nombre: "Aceite Facial de Escualano", Descripcion: "Aceite 100% puro que retiene la humedad sin efecto graso.", Precio: 48.00, Stock: 16, Categoria: "Aceite", Img: "https://picsum.photos/seed/oil/600", Galeria: []string{"https://picsum.photos/seed/oil1/600"}, Activo: true},
+		{ID: 12, Nombre: "Mascarilla de Arcilla Rosa", Descripcion: "Mascarilla desintoxicante con arcilla francesa purificante.", Precio: 38.50, Stock: 14, Categoria: "Mascarilla", Img: "https://picsum.photos/seed/clay/600", Galeria: []string{"https://picsum.photos/seed/clay1/600"}, Activo: true},
+		{ID: 13, Nombre: "Serum Niacinamida 10% + Zinc", Descripcion: "Tratamiento de alta potencia para reducir poros e imperfecciones.", Precio: 42.00, Stock: 19, Categoria: "Serum", Img: "https://picsum.photos/seed/niacinamide/600", Galeria: []string{"https://picsum.photos/seed/niacinamide1/600"}, Activo: true},
+		{ID: 14, Nombre: "Bálsamo Labial con Péptidos", Descripcion: "Bálsamo nutritivo con manteca de cacao y péptidos.", Precio: 18.00, Stock: 40, Categoria: "Crema", Img: "https://picsum.photos/seed/lip/600", Galeria: []string{"https://picsum.photos/seed/lip1/600"}, Activo: true},
+		{ID: 15, Nombre: "Agua Micelar Calmante", Descripcion: "Solución micelar bifásica con centella asiática para piel sensible.", Precio: 22.00, Stock: 28, Categoria: "Limpiador", Img: "https://picsum.photos/seed/micellar/600", Galeria: []string{"https://picsum.photos/seed/micellar1/600"}, Activo: true},
+		{ID: 16, Nombre: "Bruma Hidratante Poliglutámica", Descripcion: "Spray facial ultrafino de hidratación profunda prolongada.", Precio: 30.00, Stock: 15, Categoria: "Tónico", Img: "https://picsum.photos/seed/mist/600", Galeria: []string{"https://picsum.photos/seed/mist1/600"}, Activo: true},
+		{ID: 17, Nombre: "Fluido Matificante Mat-Pro", Descripcion: "Emulsión ultraligera reguladora con polvo matificante de bambú.", Precio: 35.00, Stock: 11, Categoria: "Crema", Img: "https://picsum.photos/seed/matt/600", Galeria: []string{"https://picsum.photos/seed/matt1/600"}, Activo: true},
+		{ID: 18, Nombre: "Kit Glow Intensivo", Descripcion: "Tratamiento duo con serum revitalizante y mascarilla de arcilla.", Precio: 78.00, Stock: 7, Categoria: "Kit", Img: "https://picsum.photos/seed/glowkit/600", Galeria: []string{"https://picsum.photos/seed/glowkit1/600"}, Activo: true},
 	}
 )
 
