@@ -93,5 +93,4 @@ jobs:
       - name: Verificar compilación del servidor
         run: |
           cd multicatalogo-backend
-          go mod edit -go=1.24.0 2>/dev/null || true
           go build -v .
