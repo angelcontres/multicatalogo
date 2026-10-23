@@ -1,6 +1,6 @@
 // src/components/Login.tsx
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth, type Rol } from "../context/auth";
 import { API_BASE_URL } from "../services/http";
 
@@ -103,6 +103,13 @@ const Login = () => {
           >
             {loading ? "Validando..." : "Iniciar Sesión"}
           </button>
+
+          <div className="text-center text-sm text-slate-600 pt-2">
+            ¿No tienes cuenta?{" "}
+            <Link to="/registro" className="text-indigo-600 font-bold hover:underline">
+              Regístrate gratis
+            </Link>
+          </div>
         </form>
 
         <div className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-1">

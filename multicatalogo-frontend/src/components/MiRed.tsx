@@ -5,6 +5,16 @@
 import { useEffect, useState } from 'react';
 import { redInicial, contarRed, sumarVentasRed, sumarComisiones, nivelAlcanzado, comisionDeReferido, TASA_COMISION, type Referido } from '../data/red';
 import { getRed } from '../services/redService';
+import { API_BASE_URL } from '../services/http';
+
+interface ComisionLedger {
+  id: number;
+  pedido_id: number;
+  nivel: number;
+  porcentaje: number;
+  monto: number;
+  estado: string;
+}
 
 const NIVEL_ESTILO: Record<number, { badge: string; border: string; tasa: string }> = {
   1: { badge: "bg-indigo-100 text-indigo-700", border: "border-indigo-200", tasa: "10 %" },
@@ -52,12 +62,40 @@ const NodoReferido = ({ nodo }: { nodo: Referido }) => {
 
 const MiRed = () => {
   const [red, setRed] = useState<Referido>(redInicial);
+  const [comisionesLedger, setComisionesLedger] = useState<ComisionLedger[]>([]);
+  const [copiado, setCopiado] = useState<boolean>(false);
 
   useEffect(() => {
     getRed().then((data) => {
       if (data) setRed(data);
     });
+
+    const fetchComisiones = async () => {
+      try {
+        const token = localStorage.getItem("multicatalogo_jwt");
+        const res = await fetch(`${API_BASE_URL}/comisiones/mias`, {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setComisionesLedger(data.comisiones || []);
+        }
+      } catch {
+        // Fallback
+      }
+    };
+
+    fetchComisiones();
   }, []);
+
+  const handleCopiarEnlace = () => {
+    const enlace = `${window.location.origin}/registro?ref=${red.codigo || "TU"}`;
+    navigator.clipboard.writeText(enlace);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 2500);
+  };
 
   const referidosActivos = contarRed(red);
   const ventasRed = sumarVentasRed(red);
@@ -77,6 +115,33 @@ const MiRed = () => {
       <p className="text-slate-500 mb-6">
         Estructura multinivel: gana el {TASA_COMISION[1] * 100} % de nivel 1, {TASA_COMISION[2] * 100} % de nivel 2 y {TASA_COMISION[3] * 100} % de nivel 3.
       </p>
+
+      {/* ===== ENLACE DE INVITACIÓN DE REFERIDO ===== */}
+      <div className="bg-gradient-to-r from-indigo-900 to-slate-900 text-white rounded-2xl p-6 shadow-md mb-8 border border-indigo-700/50">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+              🚀 Expande tu Red Multinivel
+            </span>
+            <h3 className="text-lg font-bold text-white mt-1">Tu Enlace de Afiliación Personal</h3>
+            <p className="text-xs text-slate-300 mt-1 max-w-xl">
+              Comparte este enlace para registrar nuevos distribuidores bajo tu árbol y ganar comisiones del 10% (nivel 1), 5% (nivel 2) y 2% (nivel 3).
+            </p>
+          </div>
+          <div className="flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700 shrink-0">
+            <span className="font-mono text-xs text-indigo-300 px-3 select-all">
+              {`${window.location.origin}/registro?ref=${red.codigo || "TU"}`}
+            </span>
+            <button
+              onClick={handleCopiarEnlace}
+              type="button"
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition shadow cursor-pointer shrink-0"
+            >
+              {copiado ? "¡Copiado! ✓" : "Copiar Enlace"}
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* ===== TARJETAS DE RESUMEN ===== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -113,6 +178,68 @@ const MiRed = () => {
             <NodoReferido key={hijo.id} nodo={hijo} />
           ))}
         </ul>
+      </div>
+
+      {/* ===== LEDGER DE COMISIONES AUDITABLE ===== */}
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 mt-8">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">Ledger de Comisiones Devengadas</h2>
+            <p className="text-slate-500 text-xs">Historial inmutable de ingresos generados por ventas de tu red</p>
+          </div>
+          <span className="text-xs bg-slate-100 text-slate-600 font-semibold px-2.5 py-1 rounded-md">
+            {comisionesLedger.length} transacciones
+          </span>
+        </div>
+
+        {comisionesLedger.length === 0 ? (
+          <p className="text-sm text-slate-400 py-4 text-center">No hay comisiones registradas en el ledger aún.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-slate-600">
+              <thead className="bg-slate-50 text-slate-500 uppercase text-xs font-semibold border-b border-slate-100">
+                <tr>
+                  <th className="px-4 py-3">Pedido Origen</th>
+                  <th className="px-4 py-3">Nivel MLM</th>
+                  <th className="px-4 py-3">Porcentaje</th>
+                  <th className="px-4 py-3">Monto Ganado</th>
+                  <th className="px-4 py-3 text-right">Estado</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {comisionesLedger.map((c) => (
+                  <tr key={c.id} className="hover:bg-slate-50/60 transition">
+                    <td className="px-4 py-3 font-mono font-bold text-indigo-600">
+                      MC-{c.pedido_id}
+                    </td>
+                    <td className="px-4 py-3 font-medium">
+                      Nivel {c.nivel}
+                    </td>
+                    <td className="px-4 py-3 font-mono">
+                      {(c.porcentaje * 100).toFixed(0)} %
+                    </td>
+                    <td className="px-4 py-3 font-bold text-emerald-600">
+                      +${c.monto.toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span
+                        className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          c.estado === "pagada"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : c.estado === "revertida"
+                            ? "bg-rose-100 text-rose-800"
+                            : "bg-amber-100 text-amber-800"
+                        }`}
+                      >
+                        {c.estado}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -44,8 +44,13 @@ React SPA (:5173) ──fetch (Bearer JWT)──► Go/Fiber API (:3000) ──p
 - `components/Carrito.tsx`: `/carrito` — Gestión de ítems, cantidades y cálculo de total.
 - `components/Checkout.tsx`: `/checkout` — Formulario de compra transaccional (`POST /api/checkout`).
 - `components/Confirmacion.tsx`: `/confirmacion` — Resumen de orden y vaciado de carrito.
-- `components/MiRed.tsx`: `/mi-red` — Visualización de red personal, comisiones y enlace de referido.
+- `components/MiRed.tsx`: `/mi-red` — Visualización de red personal, comisiones, ledger devengado y enlace de referido.
+- `components/MisPedidos.tsx`: `/mis-pedidos` — Historial de compras del cliente y estado de entrega.
+- `components/Register.tsx`: `/registro` — Alta pública de nuevos distribuidores con código patrocinador (`?ref=`).
 - `components/Dashboard.tsx`: `/` — Dashboard administrativo con KPIs reales.
+- `components/AdminProductos.tsx`: `/admin/productos` — Inventario comercial, alta/edición y borrado de productos.
+- `components/AdminPedidos.tsx`: `/admin/pedidos` — Gestión del ciclo de vida de pedidos y reversión/cancelación.
+- `components/AdminLiquidaciones.tsx`: `/admin/liquidaciones` — Emisión y liquidación masiva de comisiones MLM.
 
 ## Backend (`multicatalogo-backend/`)
 

@@ -11,6 +11,11 @@ import Carrito from './components/Carrito';
 import Checkout from './components/Checkout';
 import Confirmacion from './components/Confirmacion';
 import Login from './components/Login';
+import Register from './components/Register';
+import MisPedidos from './components/MisPedidos';
+import AdminPedidos from './components/AdminPedidos';
+import AdminProductos from './components/AdminProductos';
+import AdminLiquidaciones from './components/AdminLiquidaciones';
 import { InstallPwaBanner } from './components/InstallPwaBanner';
 import { OfflineBanner } from './components/OfflineBanner';
 import { CartProvider } from './context/CartContext';
@@ -61,16 +66,19 @@ function App() {
           <OfflineBanner />
           <InstallPwaBanner />
           <Routes>
-            {/* Ruta pública */}
+            {/* Rutas públicas */}
             <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Register />} />
 
             {/* Rutas protegidas */}
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<Layout />}>
-                {/* Exclusivo para Admin */}
+                {/* Exclusivo para Administrador */}
                 <Route element={<AdminRoute />}>
                   <Route index element={<Dashboard />} />
-                  <Route path="mi-red" element={<MiRed />} />
+                  <Route path="admin/productos" element={<AdminProductos />} />
+                  <Route path="admin/pedidos" element={<AdminPedidos />} />
+                  <Route path="admin/liquidaciones" element={<AdminLiquidaciones />} />
                 </Route>
 
                 {/* Ambos roles (Admin y Cliente) */}
@@ -80,6 +88,8 @@ function App() {
                 <Route path="carrito" element={<Carrito />} />
                 <Route path="checkout" element={<Checkout />} />
                 <Route path="confirmacion" element={<Confirmacion />} />
+                <Route path="mis-pedidos" element={<MisPedidos />} />
+                <Route path="mi-red" element={<MiRed />} />
               </Route>
             </Route>
 

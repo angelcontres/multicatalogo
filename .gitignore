@@ -45,6 +45,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Scratch & Temporary
+context_docs_pdf_extracted.txt
+
 # Editor & OS files
 .vscode/*
 !.vscode/extensions.json
