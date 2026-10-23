@@ -2,14 +2,27 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"multicatalogo-backend/config"
 	"multicatalogo-backend/routes"
 )
 
 func main() {
+	// Inicialización de conexiones con soporte de degradación elegante
+	dbPool := config.ConnectDB()
+	if dbPool != nil {
+		defer config.CloseDB()
+	}
+
+	redisClient := config.ConnectRedis()
+	if redisClient != nil {
+		defer config.CloseRedis()
+	}
+
 	app := fiber.New(fiber.Config{
 		AppName: "MultiCatálogo API - Core Transaccional",
 	})
@@ -30,5 +43,8 @@ func main() {
 		port = "3000"
 	}
 
-	app.Listen(":" + port)
+	log.Printf("[INFO] Servidor MultiCatálogo escuchando en :%s", port)
+	if err := app.Listen(":" + port); err != nil {
+		log.Fatalf("[ERROR] Falla al iniciar servidor: %v", err)
+	}
 }

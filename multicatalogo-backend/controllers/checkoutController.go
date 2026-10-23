@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"multicatalogo-backend/config"
 	"multicatalogo-backend/models"
 )
 
@@ -19,6 +20,11 @@ func Checkout(c *fiber.Ctx) error {
 			Status:  fiber.StatusBadRequest,
 			Message: "Cuerpo de solicitud inválido",
 		})
+	}
+
+	// Principio Zero-Trust: Si la petición trae token autenticado, vincular identidad inmutable
+	if claims, ok := c.Locals("usuario").(*config.CustomClaims); ok && claims != nil {
+		req.Email = claims.Email
 	}
 
 	if len(req.Items) == 0 {

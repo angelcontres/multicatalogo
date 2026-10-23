@@ -10,8 +10,9 @@ import (
 func SetupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 
-	// Autenticación y Verificación de Estado
+	// Autenticación, Registro y Verificación de Estado
 	api.Post("/login", controllers.Login)
+	api.Post("/register", controllers.Register)
 	api.Get("/health", controllers.HealthCheck)
 
 	// Catálogo de Productos
