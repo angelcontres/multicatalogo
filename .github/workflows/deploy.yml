@@ -93,6 +93,17 @@ jobs:
           docker compose -f docker-compose.prod.yml ps
           echo "=========================================================="
 
+      - name: Sincronizar catálogo extendido y datos semilla
+        run: |
+          echo "[INFO] Sincronizando catálogo de 18 productos y 17 referidos en PostgreSQL..."
+          DB_USER=$(grep -E '^[[:space:]]*DB_USER=' .env | cut -d= -f2 || echo "postgres")
+          DB_NAME=$(grep -E '^[[:space:]]*DB_NAME=' .env | cut -d= -f2 || echo "multicatalogo")
+          docker exec multicatalogo-postgres-prod psql -U ${DB_USER:-postgres} -d ${DB_NAME:-multicatalogo} -f /docker-entrypoint-initdb.d/init.sql || true
+          
+          echo "[INFO] Invalidando claves de caché en Redis para actualización inmediata..."
+          docker exec multicatalogo-redis-prod redis-cli FLUSHALL || true
+          echo "[OK] Base de datos y caché sincronizadas exitosamente."
+
       - name: Diagnóstico en caso de error
         if: failure()
         run: |

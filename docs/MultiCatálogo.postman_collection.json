@@ -1,0 +1,277 @@
+{
+  "info": {
+    "name": "MultiCatálogo API - Core Transaccional",
+    "_postman_id": "b8a95610-d54b-4f8e-9988-7f9e8a9bc123",
+    "description": "Colección oficial de pruebas para la API transaccional de MultiCatálogo (Go/Fiber + PostgreSQL + Redis).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://multicatalogo.tuxeros.website/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Monitoreo",
+      "item": [
+        {
+          "name": "Healthcheck",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Autenticación",
+      "item": [
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    console.log('Token JWT admin guardado');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@upse.edu.ec\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "Login (Cliente)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"cliente@upse.edu.ec\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] }
+          }
+        },
+        {
+          "name": "Registro Público con Referido",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nuevo Distribuidor\",\n  \"email\": \"nuevo.afiliado@upse.edu.ec\",\n  \"password\": \"123456\",\n  \"ref\": \"LUIS\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/register", "host": ["{{base_url}}"], "path": ["register"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Catálogo de Productos",
+      "item": [
+        {
+          "name": "Listar Catálogo (Cache-Aside Redis)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/productos", "host": ["{{base_url}}"], "path": ["productos"] }
+          }
+        },
+        {
+          "name": "Detalle de Producto por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+          }
+        },
+        {
+          "name": "Crear Producto (Requiere Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Serum Ácido Ferúlico Pro\",\n  \"descripcion\": \"Antioxidante intensivo iluminador.\",\n  \"precio\": 49.50,\n  \"stock\": 25,\n  \"categoria\": \"Serum\",\n  \"img\": \"https://picsum.photos/seed/ferulico/600\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/productos", "host": ["{{base_url}}"], "path": ["productos"] }
+          }
+        },
+        {
+          "name": "Actualizar Precio y Stock (Requiere Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"precio\": 39.99,\n  \"stock\": 18\n}"
+            },
+            "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+          }
+        },
+        {
+          "name": "Borrado Lógico / Desactivar Producto",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/productos/1", "host": ["{{base_url}}"], "path": ["productos", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Red Multinivel MLM",
+      "item": [
+        {
+          "name": "Consultar Árbol de Referidos (Cache-Aside)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/red", "host": ["{{base_url}}"], "path": ["red"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Checkout Transaccional",
+      "item": [
+        {
+          "name": "Checkout Transaccional (Exitoso)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Luis Poveda\",\n  \"email\": \"cliente@upse.edu.ec\",\n  \"direccion\": \"Av. Principal 123\",\n  \"ciudad\": \"La Libertad\",\n  \"telefono\": \"0991234567\",\n  \"metodoPago\": \"Tarjeta de crédito\",\n  \"items\": [\n    { \"producto_id\": 1, \"cantidad\": 1 },\n    { \"producto_id\": 2, \"cantidad\": 1 }\n  ]\n}"
+            },
+            "url": { "raw": "{{base_url}}/checkout", "host": ["{{base_url}}"], "path": ["checkout"] }
+          }
+        },
+        {
+          "name": "Checkout Simulación de Falla (Rollback ACID)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Simulate-Failure", "value": "true" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Luis Poveda\",\n  \"email\": \"cliente@upse.edu.ec\",\n  \"direccion\": \"Av. Principal 123\",\n  \"ciudad\": \"La Libertad\",\n  \"telefono\": \"0991234567\",\n  \"metodoPago\": \"Tarjeta de crédito\",\n  \"items\": [\n    { \"producto_id\": 1, \"cantidad\": 1 }\n  ],\n  \"simulate_failure\": true\n}"
+            },
+            "url": { "raw": "{{base_url}}/checkout", "host": ["{{base_url}}"], "path": ["checkout"] }
+          }
+        },
+        {
+          "name": "Mis Pedidos (Cliente Autenticado)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pedidos/mios", "host": ["{{base_url}}"], "path": ["pedidos", "mios"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Back-Office Pedidos",
+      "item": [
+        {
+          "name": "Listar Todos los Pedidos (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pedidos", "host": ["{{base_url}}"], "path": ["pedidos"] }
+          }
+        },
+        {
+          "name": "Cambiar Estado de Despacho",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"estado\": \"enviado\"\n}" },
+            "url": { "raw": "{{base_url}}/pedidos/1001/estado", "host": ["{{base_url}}"], "path": ["pedidos", "1001", "estado"] }
+          }
+        },
+        {
+          "name": "Cancelar Pedido (Rollback Stock y Comisiones)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pedidos/1001/cancelar", "host": ["{{base_url}}"], "path": ["pedidos", "1001", "cancelar"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Comisiones y Liquidaciones",
+      "item": [
+        {
+          "name": "Mis Comisiones Devengadas (Ledger)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/comisiones/mias", "host": ["{{base_url}}"], "path": ["comisiones", "mias"] }
+          }
+        },
+        {
+          "name": "Historial de Liquidaciones (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/liquidaciones", "host": ["{{base_url}}"], "path": ["liquidaciones"] }
+          }
+        },
+        {
+          "name": "Emitir Liquidación a Distribuidor",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"referido_id\": 1\n}" },
+            "url": { "raw": "{{base_url}}/liquidaciones", "host": ["{{base_url}}"], "path": ["liquidaciones"] }
+          }
+        }
+      ]
+    }
+  ]
+}
