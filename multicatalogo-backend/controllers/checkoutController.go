@@ -61,6 +61,18 @@ func Checkout(c *fiber.Ctx) error {
 
 	pedidoID := 1000 + rand.Intn(9000)
 
+	// Persistencia del pedido en memoria
+	RegistrarPedidoEnMemoria(models.Pedido{
+		ID:           pedidoID,
+		ClienteEmail: req.Email,
+		Total:        totalCalculado,
+		Estado:       "pendiente",
+		Items:        req.Items,
+	})
+
+	// Registro auditable en el ledger de comisiones
+	RegistrarComisionesPedido(pedidoID, totalCalculado)
+
 	// Concurrencia y Misión Crítica: Goroutine asíncrona para actualizar comisiones de la red
 	go func(total float64) {
 		time.Sleep(50 * time.Millisecond) // Simula persistencia desacoplada

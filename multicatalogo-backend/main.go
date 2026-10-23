@@ -27,9 +27,9 @@ func main() {
 		AppName: "MultiCatálogo API - Core Transaccional",
 	})
 
-	// Middleware CORS flexible para desarrollo y pruebas
+	// Middleware CORS flexible para desarrollo y producción
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173, http://127.0.0.1:5173, http://localhost:5174, http://172.17.82.108:5173, *",
+		AllowOrigins: "*",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 		AllowMethods: "GET, POST, PUT, PATCH, DELETE, OPTIONS",
 	}))

@@ -73,15 +73,15 @@
 - [x] Control de stock con retorno de error 400 ante inventario insuficiente.
 - [x] Roles diferenciados en autenticación (`admin` / `cliente`).
 - [ ] Driver de base de datos con bloqueo pesimista en vivo `FOR UPDATE`.
-- [ ] Middlewares JWT con clave HMAC-SHA256 en vivo.
+- [x] Middlewares JWT con clave HMAC-SHA256 en vivo (`RequireAuth`, `RequireAdmin`).
 
 ---
 
 ## BACK-OFFICE Y ROADMAP POST-SÍLABO (U1+U2 Avanzado)
 
-- [ ] Registro público `POST /api/register` con código de referido `?ref=CODIGO`.
-- [ ] Ledger auditable de comisiones (`comisiones`) persistido en la misma transacción del pedido.
-- [ ] Endpoint `GET /api/pedidos/mios` para consulta de compras del cliente autenticado.
-- [ ] Consola administrativa de pedidos con transiciones de estado y cancelación con devolución de stock.
-- [ ] Módulo de liquidación de comisiones a distribuidores (`POST /api/liquidaciones`).
-- [ ] Reportes analíticos SQL agregados (volumen de ventas, top productos, top distribuidores).
+- [x] Registro público `POST /api/register` con código de referido `?ref=CODIGO`.
+- [x] Ledger auditable de comisiones (`comisiones`) persistido en la misma transacción del pedido.
+- [x] Endpoint `GET /api/pedidos/mios` para consulta de compras del cliente autenticado.
+- [x] Consola administrativa de pedidos con transiciones de estado y cancelación con devolución de stock.
+- [x] Módulo de liquidación de comisiones a distribuidores (`POST /api/liquidaciones` y `GET /api/liquidaciones`).
+- [x] Reportes analíticos de negocio agregados (`GET /api/reportes/resumen`, `/top-productos`).

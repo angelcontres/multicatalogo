@@ -82,3 +82,33 @@ type Pedido struct {
 	UsuarioID    *int         `json:"usuario_id,omitempty"`
 	Items        []ItemPedido `json:"items,omitempty"`
 }
+
+// Comision representa una entrada del ledger inmutable de comisiones MLM.
+type Comision struct {
+	ID            int     `json:"id"`
+	PedidoID      int     `json:"pedido_id"`
+	ReferidoID    int     `json:"referido_id"`
+	Nivel         int     `json:"nivel"`      // 1 (10%), 2 (5%), 3 (2%)
+	Porcentaje    float64 `json:"porcentaje"` // 0.10, 0.05, 0.02
+	Monto         float64 `json:"monto"`
+	Estado        string  `json:"estado"` // "pendiente", "pagada", "revertida"
+	LiquidacionID *int    `json:"liquidacion_id,omitempty"`
+}
+
+// Liquidacion representa un pago consolidado a un distribuidor.
+type Liquidacion struct {
+	ID         int     `json:"id"`
+	ReferidoID int     `json:"referido_id"`
+	Total      float64 `json:"total"`
+	Estado     string  `json:"estado"` // "pagada"
+	CreadoEn   string  `json:"creado_en"`
+	PagadaEn   string  `json:"pagada_en"`
+}
+
+// ReporteResumen consolida KPIs reales del negocio.
+type ReporteResumen struct {
+	TotalVendido         float64 `json:"total_vendido"`
+	NumPedidos           int     `json:"num_pedidos"`
+	TicketPromedio       float64 `json:"ticket_promedio"`
+	ComisionesDevengadas float64 `json:"comisiones_devengadas"`
+}

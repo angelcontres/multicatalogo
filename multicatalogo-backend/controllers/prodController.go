@@ -183,3 +183,122 @@ func DescontarStock(productoID, cantidad int) (float64, error) {
 		Message: "Producto no encontrado en inventario",
 	}
 }
+
+// RestaurarStock repone inventario cuando un pedido es cancelado.
+func RestaurarStock(productoID, cantidad int) {
+	catalogoMutex.Lock()
+	defer catalogoMutex.Unlock()
+	for i := range catalogo {
+		if catalogo[i].ID == productoID {
+			catalogo[i].Stock += cantidad
+			return
+		}
+	}
+}
+
+// CrearProducto permite al administrador agregar un nuevo producto al catálogo.
+func CrearProducto(c *fiber.Ctx) error {
+	var nuevo models.Producto
+	if err := c.BodyParser(&nuevo); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIError{
+			Status:  fiber.StatusBadRequest,
+			Message: "Cuerpo de solicitud inválido",
+		})
+	}
+
+	if nuevo.Nombre == "" || nuevo.Precio <= 0 || nuevo.Categoria == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIError{
+			Status:  fiber.StatusBadRequest,
+			Message: "Nombre, precio válido (> 0) y categoría son obligatorios",
+		})
+	}
+
+	catalogoMutex.Lock()
+	defer catalogoMutex.Unlock()
+
+	nuevo.ID = len(catalogo) + 1
+	nuevo.Activo = true
+	if nuevo.Img == "" {
+		nuevo.Img = "https://picsum.photos/seed/prod" + strconv.Itoa(nuevo.ID) + "/600"
+	}
+	catalogo = append(catalogo, nuevo)
+
+	return c.Status(fiber.StatusCreated).JSON(nuevo)
+}
+
+// ActualizarProducto permite modificar datos de un producto existente.
+func ActualizarProducto(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIError{
+			Status:  fiber.StatusBadRequest,
+			Message: "ID de producto inválido",
+		})
+	}
+
+	var update models.Producto
+	if err := c.BodyParser(&update); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIError{
+			Status:  fiber.StatusBadRequest,
+			Message: "Cuerpo de solicitud inválido",
+		})
+	}
+
+	catalogoMutex.Lock()
+	defer catalogoMutex.Unlock()
+
+	for i := range catalogo {
+		if catalogo[i].ID == id {
+			if update.Nombre != "" {
+				catalogo[i].Nombre = update.Nombre
+			}
+			if update.Descripcion != "" {
+				catalogo[i].Descripcion = update.Descripcion
+			}
+			if update.Precio > 0 {
+				catalogo[i].Precio = update.Precio
+			}
+			if update.Stock >= 0 {
+				catalogo[i].Stock = update.Stock
+			}
+			if update.Categoria != "" {
+				catalogo[i].Categoria = update.Categoria
+			}
+			return c.JSON(catalogo[i])
+		}
+	}
+
+	return c.Status(fiber.StatusNotFound).JSON(models.APIError{
+		Status:  fiber.StatusNotFound,
+		Message: "Producto no encontrado",
+	})
+}
+
+// EliminarProducto ejecuta el borrado lógico de un producto (Activo = false).
+func EliminarProducto(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIError{
+			Status:  fiber.StatusBadRequest,
+			Message: "ID de producto inválido",
+		})
+	}
+
+	catalogoMutex.Lock()
+	defer catalogoMutex.Unlock()
+
+	for i := range catalogo {
+		if catalogo[i].ID == id {
+			catalogo[i].Activo = false
+			return c.JSON(fiber.Map{
+				"message": "Producto desactivado exitosamente (borrado lógico)",
+				"id":      id,
+			})
+		}
+	}
+
+	return c.Status(fiber.StatusNotFound).JSON(models.APIError{
+		Status:  fiber.StatusNotFound,
+		Message: "Producto no encontrado",
+	})
+}
