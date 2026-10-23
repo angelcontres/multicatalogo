@@ -123,7 +123,7 @@ const Login = () => {
               }}
               className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
             >
-              <span>👑 <strong className="text-slate-800">Admin:</strong> admin@upse.edu.ec</span>
+              <span>👑 <strong className="text-slate-800">Admin General:</strong> admin@upse.edu.ec</span>
               <span className="font-mono text-slate-400">123456</span>
             </button>
             <button
@@ -134,7 +134,7 @@ const Login = () => {
               }}
               className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
             >
-              <span>🛍️ <strong className="text-slate-800">Cliente (Luis):</strong> cliente@upse.edu.ec</span>
+              <span>🛍️ <strong className="text-slate-800">Luis Poveda (Nivel 1):</strong> cliente@upse.edu.ec</span>
               <span className="font-mono text-slate-400">123456</span>
             </button>
             <button
@@ -145,7 +145,40 @@ const Login = () => {
               }}
               className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
             >
-              <span>🌟 <strong className="text-slate-800">Líder Red (Ana):</strong> ana@upse.edu.ec</span>
+              <span>🌟 <strong className="text-slate-800">Ana García (Nivel 1):</strong> ana@upse.edu.ec</span>
+              <span className="font-mono text-slate-400">123456</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("marta@upse.edu.ec");
+                setPassword("123456");
+              }}
+              className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
+            >
+              <span>💼 <strong className="text-slate-800">Marta Sánchez (Nivel 1):</strong> marta@upse.edu.ec</span>
+              <span className="font-mono text-slate-400">123456</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("carlos@upse.edu.ec");
+                setPassword("123456");
+              }}
+              className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
+            >
+              <span>🚀 <strong className="text-slate-800">Carlos Ruiz (Nivel 2):</strong> carlos@upse.edu.ec</span>
+              <span className="font-mono text-slate-400">123456</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("valeria@upse.edu.ec");
+                setPassword("123456");
+              }}
+              className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
+            >
+              <span>💎 <strong className="text-slate-800">Valeria Castro (Nivel 1):</strong> valeria@upse.edu.ec</span>
               <span className="font-mono text-slate-400">123456</span>
             </button>
           </div>

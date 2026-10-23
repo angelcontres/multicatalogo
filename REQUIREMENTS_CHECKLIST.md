@@ -11,10 +11,10 @@
 
 | Ítem | Valor |
 |---|---|
-| **Hito actual** | **Infraestructura de Producción Docker Ultra-Optimizada (Gateway + Frontend + Backend + Postgres + Redis)** |
-| **Última tarea completada** | Dockerfiles multi-stage (Go estático no-root, Nginx SPA con Gzip/Cache), Nginx API Gateway con Rate Limiting perimetral, Docker Compose producción con segmentación Zero-Trust, scripts de despliegue (`prod-deploy.ps1`/`prod-deploy.sh`) y SDD 08 |
-| **Siguiente tarea pendiente** | Ejecutar despliegue completo en contenedor cuando Docker daemon esté activo |
-| **Bloqueadores** | Docker Desktop detenido en el host (el sistema opera con mock seguro y fallback en memoria hasta que el daemon se inicie) |
+| **Hito actual** | **Cobertura Integral de Datos de Prueba en Todas las Cuentas (Pedidos, Redes MLM, Comisiones y Liquidaciones)** |
+| **Última tarea completada** | Sembrado simétrico en memoria y PostgreSQL (`init.sql`) para las 6 cuentas (`admin`, `cliente/luis`, `ana`, `marta`, `carlos`, `valeria`). Subárboles jerárquicos personalizados en `/mi-red`, ledger devengado individual en `/api/comisiones/mias`, 13 pedidos históricos y botones 1-clic en login |
+| **Siguiente tarea pendiente** | Despliegue continuo automático a producción mediante GitHub Actions (`deploy.yml`) |
+| **Bloqueadores** | Ninguno (build Go y React validados con 0 errores y suite de tests superada) |
 
 ---
 

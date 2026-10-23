@@ -154,6 +154,38 @@ var (
 	}
 )
 
+func clonarArbol(n models.Referido) models.Referido {
+	copia := n
+	if len(n.Hijos) > 0 {
+		copia.Hijos = make([]models.Referido, len(n.Hijos))
+		for i, h := range n.Hijos {
+			copia.Hijos[i] = clonarArbol(h)
+		}
+	}
+	return copia
+}
+
+func recalcularNiveles(n *models.Referido, nivelActual int) {
+	n.Nivel = nivelActual
+	for i := range n.Hijos {
+		recalcularNiveles(&n.Hijos[i], nivelActual+1)
+	}
+}
+
+func buscarSubarbol(nodo models.Referido, id int) *models.Referido {
+	if nodo.ID == id {
+		copia := clonarArbol(nodo)
+		recalcularNiveles(&copia, 0)
+		return &copia
+	}
+	for _, hijo := range nodo.Hijos {
+		if found := buscarSubarbol(hijo, id); found != nil {
+			return found
+		}
+	}
+	return nil
+}
+
 // GetRed entrega el árbol jerárquico de referidos aplicando Cache-Aside con Redis (TTL 10m).
 func GetRed(c *fiber.Ctx) error {
 	userEmail := "global"
@@ -174,9 +206,17 @@ func GetRed(c *fiber.Ctx) error {
 	tree, err := repository.ObtenerRed(c.Context(), userEmail)
 	if err != nil || tree == nil {
 		redMutex.RLock()
-		fallbackTree := redArbol
+		targetID := emailToReferidoID(userEmail)
+		var resolvedTree *models.Referido
+		if targetID > 0 {
+			resolvedTree = buscarSubarbol(redArbol, targetID)
+		}
+		if resolvedTree == nil {
+			fallbackTree := clonarArbol(redArbol)
+			resolvedTree = &fallbackTree
+		}
 		redMutex.RUnlock()
-		tree = &fallbackTree
+		tree = resolvedTree
 	}
 
 	// 3. Almacenar en Redis con TTL de 10 minutos

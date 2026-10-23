@@ -162,24 +162,44 @@ SELECT setval('productos_id_seq', (SELECT MAX(id) FROM productos));
 
 -- 4. Pedidos Históricos Iniciales (Para poblar Mis Pedidos y Gestión de Pedidos)
 INSERT INTO pedidos (id, cliente_email, total, estado, usuario_id, creado_en) VALUES
+    (1000, 'admin@upse.edu.ec', 129.00, 'entregado', 1, NOW() - INTERVAL '6 days'),
     (1001, 'cliente@upse.edu.ec', 77.50, 'entregado', 2, NOW() - INTERVAL '5 days'),
-    (1002, 'cliente@upse.edu.ec', 84.00, 'enviado', 2, NOW() - INTERVAL '3 days'),
-    (1003, 'ana@upse.edu.ec', 129.00, 'entregado', 3, NOW() - INTERVAL '2 days'),
-    (1004, 'carlos@upse.edu.ec', 94.00, 'preparando', 5, NOW() - INTERVAL '1 day'),
-    (1005, 'cliente@upse.edu.ec', 50.00, 'pendiente', 2, NOW() - INTERVAL '2 hours')
+    (1002, 'cliente@upse.edu.ec', 84.00, 'enviado', 2, NOW() - INTERVAL '4 days'),
+    (1003, 'ana@upse.edu.ec', 129.00, 'entregado', 3, NOW() - INTERVAL '3 days'),
+    (1004, 'carlos@upse.edu.ec', 94.00, 'preparando', 5, NOW() - INTERVAL '2 days'),
+    (1005, 'cliente@upse.edu.ec', 50.00, 'pendiente', 2, NOW() - INTERVAL '1 day'),
+    (1006, 'ana@upse.edu.ec', 80.00, 'enviado', 3, NOW() - INTERVAL '20 hours'),
+    (1007, 'carlos@upse.edu.ec', 48.00, 'entregado', 5, NOW() - INTERVAL '16 hours'),
+    (1008, 'marta@upse.edu.ec', 68.50, 'entregado', 4, NOW() - INTERVAL '12 hours'),
+    (1009, 'admin@upse.edu.ec', 78.00, 'enviado', 1, NOW() - INTERVAL '8 hours'),
+    (1010, 'marta@upse.edu.ec', 42.00, 'preparando', 4, NOW() - INTERVAL '5 hours'),
+    (1011, 'valeria@upse.edu.ec', 71.00, 'entregado', 6, NOW() - INTERVAL '3 hours'),
+    (1012, 'valeria@upse.edu.ec', 42.00, 'enviado', 6, NOW() - INTERVAL '1 hour')
 ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('pedidos_id_seq', (SELECT MAX(id) FROM pedidos));
 
 -- 5. Detalle de Ítems de los Pedidos
 INSERT INTO pedido_items (id, pedido_id, producto_id, cantidad, precio_unitario) VALUES
-    (1, 1001, 1, 1, 45.00),
-    (2, 1001, 2, 1, 32.50),
-    (3, 1002, 3, 3, 28.00),
-    (4, 1003, 8, 1, 129.00),
-    (5, 1004, 5, 1, 58.00),
-    (6, 1004, 9, 1, 36.00),
-    (7, 1005, 4, 1, 50.00)
+    (1, 1000, 8, 1, 129.00),
+    (2, 1001, 1, 1, 45.00),
+    (3, 1001, 2, 1, 32.50),
+    (4, 1002, 3, 3, 28.00),
+    (5, 1003, 8, 1, 129.00),
+    (6, 1004, 5, 1, 58.00),
+    (7, 1004, 9, 1, 36.00),
+    (8, 1005, 4, 1, 50.00),
+    (9, 1006, 5, 1, 58.00),
+    (10, 1006, 15, 1, 22.00),
+    (11, 1007, 11, 1, 48.00),
+    (12, 1008, 16, 1, 30.00),
+    (13, 1008, 12, 1, 38.50),
+    (14, 1009, 18, 1, 78.00),
+    (15, 1010, 13, 1, 42.00),
+    (16, 1011, 17, 1, 35.00),
+    (17, 1011, 9, 1, 36.00),
+    (18, 1012, 10, 1, 24.00),
+    (19, 1012, 14, 1, 18.00)
 ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('pedido_items_id_seq', (SELECT MAX(id) FROM pedido_items));
@@ -187,7 +207,10 @@ SELECT setval('pedido_items_id_seq', (SELECT MAX(id) FROM pedido_items));
 -- 6. Historial Contable de Liquidaciones
 INSERT INTO liquidaciones (id, referido_id, total, estado, creado_en, pagada_en) VALUES
     (1, 1, 85.00, 'pagada', NOW() - INTERVAL '7 days', NOW() - INTERVAL '7 days'),
-    (2, 2, 62.00, 'pagada', NOW() - INTERVAL '4 days', NOW() - INTERVAL '4 days')
+    (2, 2, 62.00, 'pagada', NOW() - INTERVAL '4 days', NOW() - INTERVAL '4 days'),
+    (3, 3, 45.00, 'pagada', NOW() - INTERVAL '3 days', NOW() - INTERVAL '3 days'),
+    (4, 4, 38.00, 'pagada', NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days'),
+    (5, 9, 52.00, 'pagada', NOW() - INTERVAL '1 day', NOW() - INTERVAL '1 day')
 ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('liquidaciones_id_seq', (SELECT MAX(id) FROM liquidaciones));
@@ -195,11 +218,36 @@ SELECT setval('liquidaciones_id_seq', (SELECT MAX(id) FROM liquidaciones));
 -- 7. Ledger Auditable de Comisiones Devengadas
 INSERT INTO comisiones (id, pedido_id, referido_id, nivel, porcentaje, monto, estado, liquidacion_id, creado_en) VALUES
     (1, 1001, 0, 1, 0.10, 7.75, 'pagada', 2, NOW() - INTERVAL '5 days'),
-    (2, 1002, 0, 1, 0.10, 8.40, 'pendiente', NULL, NOW() - INTERVAL '3 days'),
-    (3, 1003, 0, 1, 0.10, 12.90, 'pagada', 1, NOW() - INTERVAL '2 days'),
-    (4, 1004, 1, 1, 0.10, 9.40, 'pendiente', NULL, NOW() - INTERVAL '1 day'),
-    (5, 1004, 0, 2, 0.05, 4.70, 'pendiente', NULL, NOW() - INTERVAL '1 day'),
-    (6, 1005, 0, 1, 0.10, 5.00, 'pendiente', NULL, NOW() - INTERVAL '2 hours')
+    (2, 1002, 0, 1, 0.10, 8.40, 'pendiente', NULL, NOW() - INTERVAL '4 days'),
+    (3, 1003, 0, 1, 0.10, 12.90, 'pagada', 1, NOW() - INTERVAL '3 days'),
+    (4, 1004, 1, 1, 0.10, 9.40, 'pagada', 1, NOW() - INTERVAL '2 days'),
+    (5, 1004, 0, 2, 0.05, 4.70, 'pendiente', NULL, NOW() - INTERVAL '2 days'),
+    (6, 1005, 0, 1, 0.10, 5.00, 'pendiente', NULL, NOW() - INTERVAL '1 day'),
+    (7, 1006, 1, 1, 0.10, 8.00, 'pendiente', NULL, NOW() - INTERVAL '20 hours'),
+    (8, 1006, 0, 2, 0.05, 4.00, 'pendiente', NULL, NOW() - INTERVAL '20 hours'),
+    (9, 1007, 1, 1, 0.10, 4.80, 'pagada', 1, NOW() - INTERVAL '16 hours'),
+    (10, 1007, 0, 2, 0.05, 2.40, 'pendiente', NULL, NOW() - INTERVAL '16 hours'),
+    (11, 1008, 0, 1, 0.10, 6.85, 'pagada', 3, NOW() - INTERVAL '12 hours'),
+    (12, 1010, 0, 1, 0.10, 4.20, 'pendiente', NULL, NOW() - INTERVAL '5 hours'),
+    (13, 1011, 0, 1, 0.10, 7.10, 'pagada', 5, NOW() - INTERVAL '3 hours'),
+    (14, 1012, 0, 1, 0.10, 4.20, 'pendiente', NULL, NOW() - INTERVAL '1 hour'),
+    -- Comisiones de Luis Poveda (Referido ID 2)
+    (15, 1001, 2, 1, 0.10, 14.50, 'pagada', 2, NOW() - INTERVAL '5 days'),
+    (16, 1002, 2, 1, 0.10, 12.00, 'pendiente', NULL, NOW() - INTERVAL '4 days'),
+    (17, 1005, 2, 2, 0.05, 6.50, 'pagada', 2, NOW() - INTERVAL '1 day'),
+    (18, 1006, 2, 1, 0.10, 8.50, 'pendiente', NULL, NOW() - INTERVAL '20 hours'),
+    -- Comisiones de Marta Sánchez (Referido ID 3)
+    (19, 1003, 3, 1, 0.10, 15.00, 'pagada', 3, NOW() - INTERVAL '3 days'),
+    (20, 1008, 3, 1, 0.10, 9.50, 'pendiente', NULL, NOW() - INTERVAL '12 hours'),
+    (21, 1010, 3, 2, 0.05, 5.00, 'pendiente', NULL, NOW() - INTERVAL '5 hours'),
+    -- Comisiones de Carlos Ruiz (Referido ID 4)
+    (22, 1004, 4, 1, 0.10, 12.50, 'pagada', 4, NOW() - INTERVAL '2 days'),
+    (23, 1007, 4, 1, 0.10, 8.80, 'pendiente', NULL, NOW() - INTERVAL '16 hours'),
+    (24, 1011, 4, 1, 0.10, 7.50, 'pagada', 4, NOW() - INTERVAL '3 hours'),
+    -- Comisiones de Valeria Castro (Referido ID 9)
+    (25, 1009, 9, 1, 0.10, 18.00, 'pagada', 5, NOW() - INTERVAL '8 hours'),
+    (26, 1011, 9, 1, 0.10, 11.50, 'pendiente', NULL, NOW() - INTERVAL '3 hours'),
+    (27, 1012, 9, 2, 0.05, 6.20, 'pagada', 5, NOW() - INTERVAL '1 hour')
 ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('comisiones_id_seq', (SELECT MAX(id) FROM comisiones));

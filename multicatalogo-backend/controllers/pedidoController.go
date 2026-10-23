@@ -14,6 +14,15 @@ var (
 	pedidosMutex sync.RWMutex
 	pedidosStore = []models.Pedido{
 		{
+			ID:           1000,
+			ClienteEmail: "admin@upse.edu.ec",
+			Total:        129.00,
+			Estado:       "entregado",
+			Items: []models.ItemPedido{
+				{ProductoID: 8, Cantidad: 1, PrecioUnitario: 129.00},
+			},
+		},
+		{
 			ID:           1001,
 			ClienteEmail: "cliente@upse.edu.ec",
 			Total:        77.50,
@@ -60,6 +69,73 @@ var (
 				{ProductoID: 4, Cantidad: 1, PrecioUnitario: 50.00},
 			},
 		},
+		{
+			ID:           1006,
+			ClienteEmail: "ana@upse.edu.ec",
+			Total:        80.00,
+			Estado:       "enviado",
+			Items: []models.ItemPedido{
+				{ProductoID: 5, Cantidad: 1, PrecioUnitario: 58.00},
+				{ProductoID: 15, Cantidad: 1, PrecioUnitario: 22.00},
+			},
+		},
+		{
+			ID:           1007,
+			ClienteEmail: "carlos@upse.edu.ec",
+			Total:        48.00,
+			Estado:       "entregado",
+			Items: []models.ItemPedido{
+				{ProductoID: 11, Cantidad: 1, PrecioUnitario: 48.00},
+			},
+		},
+		{
+			ID:           1008,
+			ClienteEmail: "marta@upse.edu.ec",
+			Total:        68.50,
+			Estado:       "entregado",
+			Items: []models.ItemPedido{
+				{ProductoID: 16, Cantidad: 1, PrecioUnitario: 30.00},
+				{ProductoID: 12, Cantidad: 1, PrecioUnitario: 38.50},
+			},
+		},
+		{
+			ID:           1009,
+			ClienteEmail: "admin@upse.edu.ec",
+			Total:        78.00,
+			Estado:       "enviado",
+			Items: []models.ItemPedido{
+				{ProductoID: 18, Cantidad: 1, PrecioUnitario: 78.00},
+			},
+		},
+		{
+			ID:           1010,
+			ClienteEmail: "marta@upse.edu.ec",
+			Total:        42.00,
+			Estado:       "preparando",
+			Items: []models.ItemPedido{
+				{ProductoID: 13, Cantidad: 1, PrecioUnitario: 42.00},
+			},
+		},
+		{
+			ID:           1011,
+			ClienteEmail: "valeria@upse.edu.ec",
+			Total:        71.00,
+			Estado:       "entregado",
+			Items: []models.ItemPedido{
+				{ProductoID: 17, Cantidad: 1, PrecioUnitario: 35.00},
+				{ProductoID: 9, Cantidad: 1, PrecioUnitario: 36.00},
+			},
+		},
+		{
+			ID:           1012,
+			ClienteEmail: "valeria@upse.edu.ec",
+			Total:        42.00,
+			Estado:       "enviado",
+			Items: []models.ItemPedido{
+				{ProductoID: 10, Cantidad: 1, PrecioUnitario: 24.00},
+				{ProductoID: 14, Cantidad: 1, PrecioUnitario: 18.00},
+			},
+		},
 	}
 )
 
@@ -80,6 +156,47 @@ func GetMisPedidos(c *fiber.Ctx) error {
 		})
 	}
 
+	if config.DBPool != nil {
+		rows, err := config.DBPool.Query(c.Context(), `
+			SELECT id, cliente_email, total, estado
+			FROM pedidos
+			WHERE cliente_email = $1
+			ORDER BY id DESC
+		`, claims.Email)
+		if err == nil {
+			defer rows.Close()
+			var dbPedidos []models.Pedido
+			for rows.Next() {
+				var p models.Pedido
+				if err := rows.Scan(&p.ID, &p.ClienteEmail, &p.Total, &p.Estado); err == nil {
+					p.Items = []models.ItemPedido{}
+					dbPedidos = append(dbPedidos, p)
+				}
+			}
+
+			for i := range dbPedidos {
+				itemRows, err := config.DBPool.Query(c.Context(), `
+					SELECT producto_id, cantidad, precio_unitario
+					FROM pedido_items
+					WHERE pedido_id = $1
+				`, dbPedidos[i].ID)
+				if err == nil {
+					for itemRows.Next() {
+						var item models.ItemPedido
+						if err := itemRows.Scan(&item.ProductoID, &item.Cantidad, &item.PrecioUnitario); err == nil {
+							dbPedidos[i].Items = append(dbPedidos[i].Items, item)
+						}
+					}
+					itemRows.Close()
+				}
+			}
+
+			if len(dbPedidos) > 0 {
+				return c.JSON(dbPedidos)
+			}
+		}
+	}
+
 	pedidosMutex.RLock()
 	defer pedidosMutex.RUnlock()
 
@@ -95,10 +212,56 @@ func GetMisPedidos(c *fiber.Ctx) error {
 
 // GetPedidosAdmin devuelve la lista completa de pedidos para el panel de administración.
 func GetPedidosAdmin(c *fiber.Ctx) error {
+	estadoFiltro := c.Query("estado")
+
+	if config.DBPool != nil {
+		query := `SELECT id, cliente_email, total, estado FROM pedidos`
+		var args []interface{}
+		if estadoFiltro != "" {
+			query += " WHERE estado = $1 ORDER BY id DESC"
+			args = append(args, estadoFiltro)
+		} else {
+			query += " ORDER BY id DESC"
+		}
+
+		rows, err := config.DBPool.Query(c.Context(), query, args...)
+		if err == nil {
+			defer rows.Close()
+			var dbPedidos []models.Pedido
+			for rows.Next() {
+				var p models.Pedido
+				if err := rows.Scan(&p.ID, &p.ClienteEmail, &p.Total, &p.Estado); err == nil {
+					p.Items = []models.ItemPedido{}
+					dbPedidos = append(dbPedidos, p)
+				}
+			}
+
+			for i := range dbPedidos {
+				itemRows, err := config.DBPool.Query(c.Context(), `
+					SELECT producto_id, cantidad, precio_unitario
+					FROM pedido_items
+					WHERE pedido_id = $1
+				`, dbPedidos[i].ID)
+				if err == nil {
+					for itemRows.Next() {
+						var item models.ItemPedido
+						if err := itemRows.Scan(&item.ProductoID, &item.Cantidad, &item.PrecioUnitario); err == nil {
+							dbPedidos[i].Items = append(dbPedidos[i].Items, item)
+						}
+					}
+					itemRows.Close()
+				}
+			}
+
+			if len(dbPedidos) > 0 {
+				return c.JSON(dbPedidos)
+			}
+		}
+	}
+
 	pedidosMutex.RLock()
 	defer pedidosMutex.RUnlock()
 
-	estadoFiltro := c.Query("estado")
 	if estadoFiltro == "" {
 		return c.JSON(pedidosStore)
 	}

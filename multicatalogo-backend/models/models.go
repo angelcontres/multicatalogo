@@ -94,6 +94,7 @@ type Comision struct {
 	Monto         float64 `json:"monto"`
 	Estado        string  `json:"estado"` // "pendiente", "pagada", "revertida"
 	LiquidacionID *int    `json:"liquidacion_id,omitempty"`
+	CreadoEn      string  `json:"creado_en,omitempty"`
 }
 
 // Liquidacion representa un pago consolidado a un distribuidor.

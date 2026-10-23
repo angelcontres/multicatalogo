@@ -109,9 +109,22 @@ func ObtenerProductoPorID(ctx context.Context, id int) (*models.Producto, error)
 	return nil, fmt.Errorf("producto con ID %d no encontrado", id)
 }
 
+// recalcularNivelesRepo ajusta recursivamente la profundidad de visualización para un subárbol
+func recalcularNivelesRepo(n *models.Referido, nivelActual int) {
+	n.Nivel = nivelActual
+	for i := range n.Hijos {
+		recalcularNivelesRepo(&n.Hijos[i], nivelActual+1)
+	}
+}
+
 // ObtenerRed construye la jerarquía multinivel desde PostgreSQL o memoria.
 func ObtenerRed(ctx context.Context, userEmail string) (*models.Referido, error) {
 	if config.DBPool != nil {
+		var targetID int = 0
+		if userEmail != "" && userEmail != "global" && userEmail != "admin@upse.edu.ec" {
+			_ = config.DBPool.QueryRow(ctx, "SELECT COALESCE(referido_id, 0) FROM usuarios WHERE email = $1", userEmail).Scan(&targetID)
+		}
+
 		rows, err := config.DBPool.Query(ctx, `
 			SELECT id, nombre, codigo, nivel, ventas, parent_id
 			FROM referidos
@@ -143,35 +156,19 @@ func ObtenerRed(ctx context.Context, userEmail string) (*models.Referido, error)
 				}
 			}
 
+			if targetID != 0 && nodes[targetID] != nil {
+				subRoot := nodes[targetID]
+				recalcularNivelesRepo(subRoot, 0)
+				return subRoot, nil
+			}
+
 			if rootID != nil && nodes[*rootID] != nil {
 				return nodes[*rootID], nil
 			}
 		}
 	}
 
-	// Fallback del árbol en memoria
-	root := &models.Referido{
-		ID: 0, Nombre: "Tú", Codigo: "TU", Nivel: 0, Ventas: 2400.00,
-		Hijos: []models.Referido{
-			{
-				ID: 1, Nombre: "Ana García", Codigo: "ANA", Nivel: 1, Ventas: 1200.00,
-				Hijos: []models.Referido{
-					{ID: 4, Nombre: "Carlos Ruiz", Codigo: "CARLOS", Nivel: 2, Ventas: 500.00, Hijos: []models.Referido{
-						{ID: 7, Nombre: "Diana Paz", Codigo: "DIANA", Nivel: 3, Ventas: 300.00},
-					}},
-					{ID: 5, Nombre: "Sofía León", Codigo: "SOFIA", Nivel: 2, Ventas: 430.00},
-				},
-			},
-			{
-				ID: 2, Nombre: "Luis Poveda", Codigo: "LUIS", Nivel: 1, Ventas: 850.00,
-				Hijos: []models.Referido{
-					{ID: 6, Nombre: "Marco Díaz", Codigo: "MARCO", Nivel: 2, Ventas: 380.00},
-				},
-			},
-			{ID: 3, Nombre: "Marta Sánchez", Codigo: "MARTA", Nivel: 1, Ventas: 430.00},
-		},
-	}
-	return root, nil
+	return nil, fmt.Errorf("repositorio db no disponible")
 }
 
 // CrearPedidoTransaccional ejecuta una compra aplicando bloqueo pesimista ACID (SELECT FOR UPDATE).
