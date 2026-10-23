@@ -52,8 +52,8 @@ jobs:
           echo "=========================================================="
           
           PROFILE_FLAG=""
-          if grep -q "CLOUDFLARE_TUNNEL_TOKEN=" .env 2>/dev/null && [ -n "$(grep CLOUDFLARE_TUNNEL_TOKEN .env | cut -d= -f2-)" ]; then
-            echo "[INFO] Cloudflare Tunnel detectado en .env. Activando perfil tunnel..."
+          if grep -E '^[[:space:]]*CLOUDFLARE_TUNNEL_TOKEN=[^[:space:]#]+' .env >/dev/null 2>&1; then
+            echo "[INFO] Cloudflare Tunnel detectado en .env con token activo. Activando perfil tunnel..."
             PROFILE_FLAG="--profile tunnel"
           fi
 
