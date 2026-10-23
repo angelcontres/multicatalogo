@@ -29,9 +29,10 @@ func main() {
 
 	// Middleware CORS flexible para desarrollo y producción
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
-		AllowMethods: "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+		AllowOrigins:  "*",
+		AllowHeaders:  "Origin, Content-Type, Accept, Authorization, X-Simulate-Failure",
+		ExposeHeaders: "X-Cache, Content-Length",
+		AllowMethods:  "GET, POST, PUT, PATCH, DELETE, OPTIONS",
 	}))
 
 	// Registro de rutas

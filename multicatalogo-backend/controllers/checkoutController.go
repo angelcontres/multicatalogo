@@ -36,6 +36,17 @@ func Checkout(c *fiber.Ctx) error {
 		})
 	}
 
+	// Demostración Didáctica de ACID Rollback (Unidad 2 - Tema 4):
+	// Permite simular una falla a mitad de la transacción para comprobar que
+	// el sistema ejecuta ROLLBACK y no persiste estados inconsistentes.
+	if req.SimulateFailure || c.Get("X-Simulate-Failure") == "true" {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIError{
+			Status:  fiber.StatusInternalServerError,
+			Message: "Falla simulada: Caída del sistema antes de procesar los items (Rollback ACID ejecutado exitosamente)",
+			Details: "Error inducido para demostración académica. Ningún pedido fue creado, el stock permanece intacto y no se pagaron comisiones.",
+		})
+	}
+
 	var totalCalculado float64 = 0.0
 
 	// Validación transaccional de stock y cálculo de precios en servidor

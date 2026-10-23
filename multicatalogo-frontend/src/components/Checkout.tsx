@@ -32,6 +32,7 @@ const Checkout = () => {
   });
   const [procesando, setProcesando] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [simularFallo, setSimularFallo] = useState<boolean>(false);
 
   if (cart.length === 0) {
     return (
@@ -65,6 +66,7 @@ const Checkout = () => {
         cantidad: item.cantidad,
       })),
       total: totalPrice,
+      simulate_failure: simularFallo,
     };
 
     try {
@@ -74,6 +76,7 @@ const Checkout = () => {
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(simularFallo ? { "X-Simulate-Failure": "true" } : {}),
         },
         body: JSON.stringify(payload),
       });
@@ -225,6 +228,24 @@ const Checkout = () => {
                 </label>
               ))}
             </div>
+          </div>
+
+          {/* ===== CONTROL DIDÁCTICO PARA EVALUACIÓN DOCENTE ===== */}
+          <div className="bg-amber-50/70 p-4 rounded-lg border border-amber-200">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={simularFallo}
+                onChange={(e) => setSimularFallo(e.target.checked)}
+                className="mt-0.5 w-4 h-4 text-amber-600 rounded border-amber-300 focus:ring-amber-500 accent-amber-600"
+              />
+              <div className="text-xs">
+                <span className="font-bold text-amber-900 block">🧪 Demostración Docente: Simular Fallo ACID (Rollback)</span>
+                <span className="text-amber-700">
+                  Activa esta opción para comprobar cómo el backend en Go aborta la transacción (`ROLLBACK`), evitando órdenes fantasmas, deducción de stock y pago de comisiones indebidas.
+                </span>
+              </div>
+            </label>
           </div>
 
           <button

@@ -69,8 +69,9 @@ type CheckoutRequest struct {
 	Ciudad     string       `json:"ciudad"`
 	Telefono   string       `json:"telefono"`
 	MetodoPago string       `json:"metodoPago"`
-	Items      []ItemPedido `json:"items"`
-	Total      float64      `json:"total"`
+	Items           []ItemPedido `json:"items"`
+	Total           float64      `json:"total"`
+	SimulateFailure bool         `json:"simulate_failure,omitempty"`
 }
 
 // Pedido representa la orden de compra persistida.

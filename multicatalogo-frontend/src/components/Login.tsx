@@ -112,10 +112,32 @@ const Login = () => {
           </div>
         </form>
 
-        <div className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-1">
-          <p className="font-semibold text-slate-700">Cuentas de prueba:</p>
-          <p>👑 Admin: <span className="font-mono">admin@upse.edu.ec / 123456</span></p>
-          <p>🛍️ Cliente: <span className="font-mono">cliente@upse.edu.ec / 123456</span></p>
+        <div className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-2">
+          <p className="font-semibold text-slate-700">Cuentas de prueba (clic para autocompletar):</p>
+          <div className="flex flex-col gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("admin@upse.edu.ec");
+                setPassword("123456");
+              }}
+              className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
+            >
+              <span>👑 <strong className="text-slate-800">Admin:</strong> admin@upse.edu.ec</span>
+              <span className="font-mono text-slate-400">123456</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("cliente@upse.edu.ec");
+                setPassword("123456");
+              }}
+              className="text-left p-2 rounded bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition cursor-pointer flex justify-between items-center"
+            >
+              <span>🛍️ <strong className="text-slate-800">Cliente:</strong> cliente@upse.edu.ec</span>
+              <span className="font-mono text-slate-400">123456</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

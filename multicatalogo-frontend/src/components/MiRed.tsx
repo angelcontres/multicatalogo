@@ -64,11 +64,40 @@ const MiRed = () => {
   const [red, setRed] = useState<Referido>(redInicial);
   const [comisionesLedger, setComisionesLedger] = useState<ComisionLedger[]>([]);
   const [copiado, setCopiado] = useState<boolean>(false);
+  const [cacheStatus, setCacheStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    getRed().then((data) => {
-      if (data) setRed(data);
-    });
+    let ignore = false;
+    const fetchRed = async () => {
+      try {
+        const token = localStorage.getItem("multicatalogo_jwt");
+        const res = await fetch(`${API_BASE_URL}/red`, {
+          headers: {
+            Accept: "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        const header = res.headers.get("X-Cache");
+        if (header && !ignore) {
+          setCacheStatus(header);
+        }
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.nombre && !ignore) {
+            setRed(data);
+            return;
+          }
+        }
+      } catch {
+        // Fallback
+      }
+      const fallback = await getRed();
+      if (!ignore && fallback) {
+        setRed(fallback);
+      }
+    };
+
+    fetchRed();
 
     const fetchComisiones = async () => {
       try {
@@ -80,7 +109,9 @@ const MiRed = () => {
         });
         if (res.ok) {
           const data = await res.json();
-          setComisionesLedger(data.comisiones || []);
+          if (!ignore) {
+            setComisionesLedger(data.comisiones || []);
+          }
         }
       } catch {
         // Fallback
@@ -88,6 +119,10 @@ const MiRed = () => {
     };
 
     fetchComisiones();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleCopiarEnlace = () => {
@@ -111,7 +146,26 @@ const MiRed = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">Mi Red de Referidos</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h1 className="text-2xl font-bold text-slate-800">Mi Red de Referidos</h1>
+        {cacheStatus && (
+          <span
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+              cacheStatus === "HIT"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "bg-amber-50 text-amber-700 border border-amber-200"
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                cacheStatus === "HIT" ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+              }`}
+            ></span>
+            Redis: {cacheStatus}{" "}
+            {cacheStatus === "HIT" ? "(RAM < 5ms)" : "(Cálculo DB Recursivo)"}
+          </span>
+        )}
+      </div>
       <p className="text-slate-500 mb-6">
         Estructura multinivel: gana el {TASA_COMISION[1] * 100} % de nivel 1, {TASA_COMISION[2] * 100} % de nivel 2 y {TASA_COMISION[3] * 100} % de nivel 3.
       </p>

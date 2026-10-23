@@ -8,11 +8,13 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useCart } from '../context/cart';
 import { getProductos } from '../services/productosService';
 import { categorias, type Producto } from '../data/productos';
+import { API_BASE_URL } from '../services/http';
 
 const Catalogo = () => {
   const { addToCart } = useCart();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [cacheStatus, setCacheStatus] = useState<string | null>(null);
 
   // Lectura del query string (?categoria=...) enviado desde el Storefront
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,12 +24,38 @@ const Catalogo = () => {
   const [categoria, setCategoria] = useState<string>(searchParams.get("categoria") ?? "Todas");
 
   useEffect(() => {
-    getProductos()
-      .then((data) => {
-        setProductos(data);
+    let ignore = false;
+    const fetchWithCacheHeader = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/productos`, {
+          headers: { Accept: "application/json" },
+        });
+        const cacheHeader = res.headers.get("X-Cache");
+        if (cacheHeader && !ignore) {
+          setCacheStatus(cacheHeader);
+        }
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && !ignore) {
+            setProductos(data);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch {
+        // Fallback elegante
+      }
+      const fallback = await getProductos();
+      if (!ignore) {
+        setProductos(fallback);
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+
+    fetchWithCacheHeader();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   // Filtrado con useMemo
@@ -58,7 +86,26 @@ const Catalogo = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">Catálogo de Productos</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h1 className="text-2xl font-bold text-slate-800">Catálogo de Productos</h1>
+        {cacheStatus && (
+          <span
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+              cacheStatus === "HIT"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "bg-amber-50 text-amber-700 border border-amber-200"
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                cacheStatus === "HIT" ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+              }`}
+            ></span>
+            Redis: {cacheStatus}{" "}
+            {cacheStatus === "HIT" ? "(RAM < 5ms)" : "(Query PostgreSQL)"}
+          </span>
+        )}
+      </div>
       <p className="text-slate-500 mb-6">
         {productosFiltrados.length} producto(s) encontrado(s)
       </p>
