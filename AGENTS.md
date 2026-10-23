@@ -11,6 +11,7 @@
    - Lee **PRIMERO** `PROJECT_MAP.md` para ubicar el componente y archivo exacto antes de leer código.
    - Lee `REQUIREMENTS_CHECKLIST.md` para conocer el estado actual y qué falta por implementar.
    - Consulta `docs/LEVANTAMIENTO_REQUERIMIENTOS.md` para cualquier duda sobre especificación formal, reglas de negocio o contratos API.
+   - Consulta `docs/sdd/` para detalles de diseño de software (diagramas C4, esquemas DDL, flujos de secuencia ACID y patrones de caché).
 
 2. **Edición Quirúrgica de Código:**
    - Modifica únicamente las líneas o bloques puntuales necesarios.

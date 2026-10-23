@@ -18,6 +18,7 @@ React SPA (:5173) ──fetch (Bearer JWT)──► Go/Fiber API (:3000) ──p
 | Directorio / Archivo | Responsabilidad / Contenido |
 |---|---|
 | `docs/LEVANTAMIENTO_REQUERIMIENTOS.md` | **Especificación Oficial (DRS/SRS)**: Requerimientos funcionales (RF), no funcionales (RNF), contratos API, reglas de negocio y modelo relacional. |
+| `docs/sdd/` | **Software Design Document (SDD) Modular**: Arquitectura C4, Frontend, Backend Go, DDL PostgreSQL, Cache-Aside Redis, Seguridad JWT/RBAC y Secuencias ACID. |
 | `PROJECT_MAP.md` | Este archivo. Índice de navegación y contratos clave. |
 | `REQUIREMENTS_CHECKLIST.md` | Lista de chequeo y estado de avance por Unidad del sílabo y Back-office. |
 | `.windsurfrules` / `.cursorrules` / `AGENTS.md` | Directivas del agente IA: ahorro de tokens, navegación quirúrgica, testing. |

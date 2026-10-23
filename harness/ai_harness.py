@@ -88,6 +88,7 @@ def run_doctor() -> int:
         ("Root Checklist", CHECKLIST_FILE),
         ("Project Map", PROJECT_MAP_FILE),
         ("Requirements Doc", DOCS_DIR / "LEVANTAMIENTO_REQUERIMIENTOS.md"),
+        ("SDD Master Index", DOCS_DIR / "sdd" / "README.md"),
         ("Agent Directives", WORKSPACE_ROOT / "AGENTS.md"),
         ("Backend Main", BACKEND_DIR / "main.go"),
         ("Backend Mod", BACKEND_DIR / "go.mod"),
